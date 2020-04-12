@@ -1,0 +1,316 @@
+<?php
+
+namespace App\Http\Controllers\Processo;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Robo;
+use App\Processo;
+use App\CampoProcesso;
+use Yajra\DataTables\Facades\DataTables;
+
+class ProcessoController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function index(Request $request)
+    {
+        $robo_id = $request->id;
+        $robo = Robo::find($robo_id);
+
+        $processo = Processo::count();
+        $robos = Robo::count();
+        $robosOn = Robo::where('status', 1)->count();
+        $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
+        $robosErro = Robo::where('status', 2)->count();
+        return view('processo.index',compact('processo','robo','robo_id','robos','robosOff','robosOn','robosErro'));
+    }
+    public function returnProcessDatatable(Request $request)
+    {
+        return Datatables::of(Processo::where('robo_id',$request->id))
+        ->addColumn('robo', function($data){
+           $robo = Robo::find($data->robo_id);
+            
+            return $robo->name;
+             
+         })
+         ->addColumn('actions', function($data){
+            $icon = '<a class="btn btn-info" href="/processos/'.$data->id.'/view">
+            Ver Processo
+            </a>';
+             
+             return $icon;
+              
+          })
+          ->rawColumns(['actions'])->make();
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $parser = new \Smalot\PdfParser\Parser();
+        $file = base_path('/public/pdfs/'.$request->processo.'.pdf');
+        $pdf = $parser->parseFile($file);
+        $processo = new Processo;
+        $nome = 0;
+        $cpf = 0;
+        $valor_principal = 0;
+        $valor_juro = 0;
+        $valor_req = 0;
+        $processoV = 0;
+        $criado = 0;
+        $data_conta = 0;
+        $assunto_cjf = 0;
+        $processoAnterior = [];
+        $linhas = explode("\n", $pdf->getText());
+        $nome_reu = "";
+        $segundo_cpf = "";
+        $processo->processo = $request->processo;
+        $processo->robo_id = $request->robo_id;
+        $processo->save();
+        foreach($linhas as $linha){
+            
+            if(preg_match('/Data de Nascimento/', $linha) ){
+                $explode = explode(' ', $linha);
+                $campo = new CampoProcesso;
+                $campo->processo_id = $processo->id;
+                $campo->key = 'data';
+                $campo->name = 'Data de Nascimento';
+                $data = (isset($explode[3]) ? trim($explode[3])  : "");
+           
+                $data = explode('/',$data);
+                $data = \Carbon\Carbon::createFromDate($data[2].'-'.$data[1].'-'.$data[0])->toDateString();
+
+                $campo->value = $data;
+                $campo->save();
+            }
+            if(preg_match('/Processo Anterior nº/', $linha) ){
+                array_push($processoAnterior, $linha);
+            }
+            $explode = explode(':', $linha);
+            if($processoV == 0){
+                if($explode[0] == "Processo"){
+                    $processoV =1;
+                    $numero = explode(" ",$explode[1]);
+                    $processo->processo = (isset($numero[2]) ? trim($numero[2]) : trim($numero[1] ) );
+                    
+                }
+            }
+            // if($explode[0] == "Nome da Vara"){
+            //     array_push($processoAnterior, $explode[1]);
+
+            // }
+            // if($explode[0] == "Data Protocolo"){
+            //     array_push($processoAnterior, $explode[1]);
+
+            // }
+            if($assunto_cjf == 0){
+                if($explode[0] == "Assunto CJF"){
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'text';
+                    $campo->name = 'Assunto CJF';
+                    $campo->value =  trim($explode[1]);
+                    $campo->save();
+                    $assunto_cjf++;
+                }
+            }
+            if($data_conta == 0){
+                if($explode[0] == "Data da Conta"){
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'data';
+                    $campo->name = 'Data da Conta';
+                    $data = (isset($explode[1]) ? trim($explode[1])  : "");
+                
+                    $data = explode('/',$data);
+                    $data = \Carbon\Carbon::createFromDate($data[2].'-'.$data[1].'-'.$data[0])->toDateString();
+                    $campo->value = $data;
+                    $campo->save();
+                    $data_conta++;
+                }
+            }
+
+            if(preg_match('/Contratuais/', $linha) ){
+                $campo = new CampoProcesso;
+                $campo->processo_id = $processo->id;
+                $campo->key = 'radiobutton-disable';
+                $campo->name = 'Contratuais-sim,não';
+                $campo->value =  'sim';
+                $campo->save();
+
+            }
+            if($nome == 0){
+                if($explode[0] == "Nome"){
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'text';
+                    $campo->name = 'Nome';
+                    $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                    $campo->save();
+         
+					
+                }
+            }
+            if($explode[0] == "Réu\t"){
+                $nome = 1;
+            }
+            if($cpf == 0){ 
+                if(preg_match('/CPF/', $linha)){
+                        $processo->cpf = trim($explode[1]);
+                        $cpf=1;
+                }
+            }
+            if($cpf == 1){ 
+                if(preg_match('/CPF/', $linha)){
+                    if($processo->cpf != trim($explode[1])){
+                        $segundo_cpf = trim($explode[1]);
+                        $cpf=2;
+                    }
+                }
+            }
+            if($nome == 1){
+                if($explode[0] == "Nome"){
+                  $nome_reu = trim($explode[1]);
+				  $nome=2;
+                }
+            }
+  
+            if($valor_principal < 2){
+                if($explode[0] == "Valor Principal"){
+                    $valor_principal++;
+                    $processo->valor_principal = trim($explode[1]);
+                    
+                }
+            }
+       
+            if($valor_juro < 2){
+                if($explode[0] == "Valor Juros"){
+                    $valor_juro++;
+                    $processo->valor_juros = trim($explode[1]);
+                    
+                }
+            }
+            if($valor_req == 0){
+                if($explode[0] == "Valor Total do Requerente"){
+                    $valor_req = 1;
+                    $processo->valor_total_req = trim($explode[1]);
+                    
+                }
+            }
+            if($explode[0] == "Número de Meses (Exerc. Anteriores)"){
+                $valor_req = 1;
+                $meses = explode('D', $explode[1]);
+                $processo->numero_de_meses = trim($meses[0]);
+                
+            }
+            if($criado == 0){
+                if(preg_match('/Criado em/', $linha)){
+                    $nlinha = explode(' ', $linha);
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'info';
+                    $campo->name = 'Criado em';
+                    $campo->value = 'Criado em:' .$nlinha[5].' '.$nlinha[6];
+                    $campo->save();
+                    $criado++;
+                }
+            }
+        }
+        // $processo->processos_anteriores = json_encode($processoAnterior);
+        // $processo->nome_reu = $nome_reu;
+        // $processo->segundo_cpf = $segundo_cpf;
+        // $processo->robo_id = 1;
+      
+        // $processo->save();
+
+        return Response()->json($processo);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        $processos = Processo::find($request->id);
+        $campos = CampoProcesso::where('processo_id',$processos->id)->get();
+        $processo = Processo::count();
+        $robos = Robo::count();
+        $robosOn = Robo::where('status', 1)->count();
+        $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
+        $robosErro = Robo::where('status', 2)->count();
+        return view('processo.view',compact('processo','processos','campos','robos','robosOff','robosOn','robosErro'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+         $params = count($request->request) - 2;
+         $paramsRequest = $request->all();
+
+         foreach($paramsRequest as $index => $value){
+            $param = explode('-',$index);
+            if(isset($param[1])){
+                $campos = CampoProcesso::find($param[1]);
+                if($campos){
+                    $campos->value = $value;
+                    $campos->save();
+                }
+            }
+         }
+
+         return Redirect()->back()->with('success','Sucesso ao autalizar o processo');
+        
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}
