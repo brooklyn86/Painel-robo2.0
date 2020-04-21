@@ -2,7 +2,7 @@
 
 ## Instalação
 
--Requistos
+<b>--Requistos</b></br>
 <b>PHP 7.3<b/></br>
 <b>Composer</b>
 
