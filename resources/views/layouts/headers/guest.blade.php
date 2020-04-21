@@ -1,9 +1,9 @@
-<div class="header bg-gradient-primary py-7 py-lg-8">
+<div class="header bg-gradient-danger py-7 py-lg-8">
     <div class="container">
         <div class="header-body text-center mb-7">
             <div class="row justify-content-center">
                 <div class="col-lg-5 col-md-6">
-                    <h1 class="text-white">{{ __('Welcome to Argon Dashboard FREE Laravel Live Preview.') }}</h1>
+                    <h1 class="text-white">Bem vindos a plataforma de gestão de <code>Bot's</code></h1>
                 </div>
             </div>
         </div>

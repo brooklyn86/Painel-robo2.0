@@ -20,6 +20,7 @@
                         <table id="processo" class="table align-items-center table-flush">
                             <thead class="thead-light">
                                 <tr>
+                                    <th scope="col">#</th>
                                     <th scope="col">Processo</th>
                                     <th scope="col">Robo</th>
                                     <th scope="col">Ação</th>

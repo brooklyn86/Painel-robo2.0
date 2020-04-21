@@ -25,24 +25,61 @@ class RoboController extends Controller
     public function create()
     {
         $processo = Processo::count();
-
+        $totalMesAnterior = $this->returnQuantidadeProcesso();
+  
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('bot.create',compact('processo','robos','robosOff','robosOn','robosErro'));
+        return view('bot.create',compact('processo','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
+    }
+    public function returnQuantidadeProcesso(){
+        $mesAnterior = \Carbon\Carbon::now()->subMonth()->toDateString();
+        $mesAtual = \Carbon\Carbon::now()->toDateString();
+        $processos = Processo::whereBetween('created_at', [$mesAnterior, $mesAtual])->get()->count();
+        return $processos;
+    }
+    public function activateBot(Request $request, Robo $robo){
+        $id = $request->id;
+        $roboValidate = $robo->find($id);
+        if(!$roboValidate){
+            return redirect()->back()->with('error', 'Robo não encontrado');
+
+        }
+        $response =$robo->activateBot($id);
+        if($response){
+            return redirect()->back()->with('success', 'Robo ativado com sucesso');
+        }
+        return redirect()->back()->with('error', 'Falha na ativação do robo');
+
+    }
+
+    public function disabledBot(Request $request, Robo $robo){
+        $id = $request->id;
+
+        $roboValidate = $robo->find($id);
+        if(!$roboValidate){
+            return redirect()->back()->with('error', 'Robo não encontrado');
+
+        }
+        $response =$robo->disabledBot($id);
+        if($response){
+            return redirect()->back()->with('success', 'Robo ativado com sucesso');
+        }
+        return redirect()->back()->with('error', 'Falha na ativação do robo');
+
     }
 
     public function index(Request $request)
     {
         $robo_id = $request->id;
         $processo = Processo::count();
-
+        $totalMesAnterior = App\CreturnQuantidadeProcesso();    
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('bot.create',compact('processo','robo_id','robos','robosOff','robosOn','robosErro'));
+        return view('bot.create',compact('processo','totalMesAnterior','robo_id','robos','robosOff','robosOn','robosErro'));
     }
     public function returnRoboDatatable()
     {
@@ -50,17 +87,22 @@ class RoboController extends Controller
         ->addColumn('statusForm', function($data){
  
             if($data->status == 0){
-                  $icon = '<a class="nav-link" href="#">
+                $route = route('enabled.bot.post',['id'=> $data->id]);
+                  $icon = '<a class="nav-link" href="'.$route.'">
                 <i class="ni ni-button-power text-danger"></i> 
             </a>';
             }
             if($data->status == 1){
-                $icon = '<a class="nav-link" href="#">
+                $route = route('disabled.bot.post',['id'=> $data->id]);
+
+                $icon = '<a class="nav-link" href="'.$route.'">
                 <i class="ni ni-sound-wave text-success"></i> 
             </a>';
             }
             if($data->status == 2){
-                $icon = '<a class="nav-link" href="#">
+                $route = route('enabled.bot.post',['id'=> $data->id]);
+
+                $icon = '<a class="nav-link" href="'.$route.'">
                 <i class="fas fa-exclamation-triangle text-warning"></i>
             </a>';
             }

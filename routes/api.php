@@ -16,4 +16,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1', 'namespace' => 'processo'], function () {
     Route::post('/cadastrar/processo', 'ProcessoController@store');
+    Route::post('/submit/processo/domain', 'ProcessoController@submitProcessoDomain')->name('submit.processo.api');
 });

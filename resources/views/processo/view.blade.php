@@ -129,36 +129,36 @@
                       </div>
                       @endif
                       @if($campo->key == 'info')
-                        <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                        <div class="alert alert-secondary alert-dismissible fade show col-md-6" role="alert">
                             <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-                            <span class="alert-text"><strong>Informativo!</strong> {{$campo->value}}</span>
+                            <span class="alert-text"><strong>Informativo!</strong> </br>{{$campo->value}}</span>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                       @endif
                       @if($campo->key == 'info-success')
-                      <div class="alert alert-dark alert-dismissible fade show" role="alert">
+                      <div class="alert alert-dark alert-dismissible fade show col-md-6" role="alert">
                             <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-                            <span class="alert-text"><strong>Informativo!</strong> {{$campo->value}}</span>
+                            <span class="alert-text"><strong>Informativo!</strong> </br>{{$campo->value}}</span>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                       @endif
                       @if($campo->key == 'info-warning')
-                      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <div class="alert alert-warning alert-dismissible fade show col-md-6" role="alert">
                             <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-                            <span class="alert-text"><strong>Informativo!</strong> {{$campo->value}}</span>
+                            <span class="alert-text"><strong>Informativo!</strong> </br>{{$campo->value}}</span>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                       @endif
                       @if($campo->key == 'info-danger')
-                      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      <div class="alert alert-danger alert-dismissible fade show col-md-6" role="alert">
                             <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-                            <span class="alert-text"><strong>Informativo!</strong> {{$campo->value}}</span>
+                            <span class="alert-text"><strong>Informativo!</strong> </br>{{$campo->value}}</span>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>

@@ -21,15 +21,21 @@ class HomeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Robo $robo)
     {
         $processo = Processo::count();
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
+        $totalMesAnterior = $this->returnQuantidadeProcesso();    
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('dashboard',compact('processo','robos','robosOff','robosOn','robosErro'));
+        return view('dashboard',compact('processo','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
     }
 
-
+    public function returnQuantidadeProcesso(){
+        $mesAnterior = \Carbon\Carbon::now()->subMonth()->toDateString();
+        $mesAtual = \Carbon\Carbon::now()->toDateString();
+        $processos = Processo::whereBetween('created_at', [$mesAnterior, $mesAtual])->get()->count();
+        return $processos;
+    }
 }

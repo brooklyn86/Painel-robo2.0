@@ -18,7 +18,8 @@
         <!-- Argon CSS -->
         <link type="text/css" href="{{ asset('argon') }}/css/argon.css?v=1.0.0" rel="stylesheet">
         <link type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
-        <link type="text/css" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+        <!-- <link type="text/css" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"> -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/sl-1.3.1/datatables.min.css"/>
     </head>
     <script>
         var robo_id = <?php if(isset($robo_id)){ echo $robo_id;}else{ echo 'null';};?>
@@ -41,6 +42,14 @@
         <script src="{{ asset('argon') }}/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
 
 
         <script>
@@ -48,8 +57,36 @@
             var processo = $('#processo').DataTable({
             processing: true,
             serverSide: true,
+            dom: 'Bfrtip',
+            select: true,
+            select: {
+                style:    'multi',
+                selector: 'td:first-child'
+            },
+            buttons: [
+            {
+                text: 'Enviar Todos',
+                className: 'btn btn-success',
+                action: function ( e, dt, items) {
+                    var process = [];
+                    var data = processo.rows({ selected: true }).data();
+                    data.each(function( index ) {
+                        process.push(index);
+                    });
+                    var pp = JSON.stringify(process);
+                    $.post("{{route('submit.processo.api')}}", {data: pp}, function(data, status){
+                      
+                    });
+                  
+                }
+            }
+        ],
             ajax: '/processos/getprocessosDatatables/'+robo_id,
             columns: [
+                {
+                    data : 'id',
+                    name : 'id'
+                },                
                 {
                     data : 'processo',
                     name : 'processo'

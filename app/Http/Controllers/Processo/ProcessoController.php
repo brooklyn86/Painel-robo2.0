@@ -8,7 +8,7 @@ use App\Robo;
 use App\Processo;
 use App\CampoProcesso;
 use Yajra\DataTables\Facades\DataTables;
-
+use Requests as api;
 class ProcessoController extends Controller
 {
     /**
@@ -21,13 +21,36 @@ class ProcessoController extends Controller
     {
         $robo_id = $request->id;
         $robo = Robo::find($robo_id);
-
         $processo = Processo::count();
+        $totalMesAnterior = $this->returnQuantidadeProcesso();
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('processo.index',compact('processo','robo','robo_id','robos','robosOff','robosOn','robosErro'));
+        return view('processo.index',compact('processo','totalMesAnterior','robo','robo_id','robos','robosOff','robosOn','robosErro'));
+    }
+
+    public function returnQuantidadeProcesso(){
+        $mesAnterior = \Carbon\Carbon::now()->subMonth()->toDateString();
+        $mesAtual = \Carbon\Carbon::now()->toDateString();
+        $processos = Processo::whereBetween('created_at', [$mesAnterior, $mesAtual])->get()->count();
+        return $processos;
+    }
+
+    public function submitProcessoDomain(Request $request, CampoProcesso $campoProcesso){
+        $processos = $request->data;
+        $processos = json_decode($processos);
+        $process = [];
+        foreach($processos as $processo){
+           $campos = $campoProcesso->where('processo_id', $processo->id)->get()->toArray();
+           array_push($process, array('campos' => $campos, 'processo' => ['id' => $processo->id,'number' => $processo->processo, 'robo' => $processo->robo_id]));
+        }
+        $response = api::post('http://localhost', $process);
+        if($response->status_code == 200){
+            return Response()->json('success', 'Processos Enviados com Sucessos');
+        }
+        return Response()->json('error', 'Falha ao Enviar');
+
     }
     public function returnProcessDatatable(Request $request)
     {
@@ -78,6 +101,8 @@ class ProcessoController extends Controller
         $valor_juro = 0;
         $valor_req = 0;
         $processoV = 0;
+        $contratuais = 0;
+        $nomeReu = 0;
         $criado = 0;
         $data_conta = 0;
         $assunto_cjf = 0;
@@ -88,6 +113,7 @@ class ProcessoController extends Controller
         $processo->processo = $request->processo;
         $processo->robo_id = $request->robo_id;
         $processo->save();
+        $totalLinhas = count($linhas);
         foreach($linhas as $linha){
             
             if(preg_match('/Data de Nascimento/', $linha) ){
@@ -96,6 +122,7 @@ class ProcessoController extends Controller
                 $campo->processo_id = $processo->id;
                 $campo->key = 'data';
                 $campo->name = 'Data de Nascimento';
+                $campo->order = 3;
                 $data = (isset($explode[3]) ? trim($explode[3])  : "");
            
                 $data = explode('/',$data);
@@ -131,6 +158,8 @@ class ProcessoController extends Controller
                     $campo->key = 'text';
                     $campo->name = 'Assunto CJF';
                     $campo->value =  trim($explode[1]);
+                    $campo->order = 3;
+
                     $campo->save();
                     $assunto_cjf++;
                 }
@@ -141,6 +170,8 @@ class ProcessoController extends Controller
                     $campo->processo_id = $processo->id;
                     $campo->key = 'data';
                     $campo->name = 'Data da Conta';
+                    $campo->order = 4;
+
                     $data = (isset($explode[1]) ? trim($explode[1])  : "");
                 
                     $data = explode('/',$data);
@@ -150,16 +181,18 @@ class ProcessoController extends Controller
                     $data_conta++;
                 }
             }
-
-            if(preg_match('/Contratuais/', $linha) ){
-                $campo = new CampoProcesso;
-                $campo->processo_id = $processo->id;
-                $campo->key = 'radiobutton-disable';
-                $campo->name = 'Contratuais-sim,não';
-                $campo->value =  'sim';
-                $campo->save();
-
+            if($contratuais == 0) {
+                if(preg_match('/Contratuais/', $linha) ){
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'radiobutton-disable';
+                    $campo->name = 'Contratuais-sim,não';
+                    $campo->value =  'sim';
+                    $campo->save();
+                    $contratuais = 1;
+                }
             }
+
             if($nome == 0){
                 if($explode[0] == "Nome"){
                     $campo = new CampoProcesso;
@@ -167,9 +200,8 @@ class ProcessoController extends Controller
                     $campo->key = 'text';
                     $campo->name = 'Nome';
                     $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                    $campo->order = 0;
                     $campo->save();
-         
-					
                 }
             }
             if($explode[0] == "Réu\t"){
@@ -177,51 +209,105 @@ class ProcessoController extends Controller
             }
             if($cpf == 0){ 
                 if(preg_match('/CPF/', $linha)){
-                        $processo->cpf = trim($explode[1]);
-                        $cpf=1;
+
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'text';
+                    $campo->name = 'CPF';
+                    $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                    $campo->order = 1;
+
+                    $campo->save();
+                    $cpf=1;
                 }
             }
-            if($cpf == 1){ 
-                if(preg_match('/CPF/', $linha)){
-                    if($processo->cpf != trim($explode[1])){
-                        $segundo_cpf = trim($explode[1]);
-                        $cpf=2;
-                    }
-                }
-            }
-            if($nome == 1){
+            // if($cpf == 1){ 
+            //     if(preg_match('/CPF/', $linha)){
+            //         if($processo->cpf != trim($explode[1])){
+            //             $campo = new CampoProcesso;
+            //             $campo->processo_id = $processo->id;
+            //             $campo->key = 'text';
+            //             $campo->name = 'Segundo CPF';
+            //             $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+            //             $campo->order = ;
+
+            //             $campo->save();
+            //             $cpf=2;
+            //         }
+            //     }
+            // }
+            if($nome > 0 && $nomeReu != 1){
                 if($explode[0] == "Nome"){
-                  $nome_reu = trim($explode[1]);
-				  $nome=2;
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'text';
+                    $campo->name = 'Nome do Reu';
+                    $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                    $campo->order = 2;
+
+                    $campo->save();
+				  $nome++;
+				  $nomeReu = 1;
                 }
             }
   
             if($valor_principal < 2){
                 if($explode[0] == "Valor Principal"){
-                    $valor_principal++;
-                    $processo->valor_principal = trim($explode[1]);
-                    
+                    if($valor_principal == 1){
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Valor Principal';
+                        $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                        $campo->order = 5;
+
+                        $campo->save();
+                    }
+                    $valor_principal++;                    
                 }
             }
        
             if($valor_juro < 2){
                 if($explode[0] == "Valor Juros"){
+                    if($valor_juro == 1){
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Valor Juros';
+                        $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                        $campo->order = 6;
+
+                        $campo->save();
+                        
+                    }
                     $valor_juro++;
-                    $processo->valor_juros = trim($explode[1]);
-                    
+
                 }
             }
             if($valor_req == 0){
                 if($explode[0] == "Valor Total do Requerente"){
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = 'text';
+                    $campo->name = 'Valor Total do Requerente';
+                    $campo->value = (isset($explode[1]) ? trim($explode[1])  : "");
+                    $campo->order = 7;
+
+                    $campo->save();
                     $valor_req = 1;
-                    $processo->valor_total_req = trim($explode[1]);
-                    
                 }
             }
             if($explode[0] == "Número de Meses (Exerc. Anteriores)"){
                 $valor_req = 1;
                 $meses = explode('D', $explode[1]);
-                $processo->numero_de_meses = trim($meses[0]);
+                $campo = new CampoProcesso;
+                $campo->processo_id = $processo->id;
+                $campo->key = 'text';
+                $campo->name = 'Número de Meses (Exerc. Anteriores)';
+                $campo->value = (isset($meses[0]) ? trim($meses[0])  : "");
+                $campo->order = 9;
+
+                $campo->save();
                 
             }
             if($criado == 0){
@@ -232,6 +318,8 @@ class ProcessoController extends Controller
                     $campo->key = 'info';
                     $campo->name = 'Criado em';
                     $campo->value = 'Criado em:' .$nlinha[5].' '.$nlinha[6];
+                    $campo->order = 8;
+
                     $campo->save();
                     $criado++;
                 }
@@ -256,7 +344,7 @@ class ProcessoController extends Controller
     public function show(Request $request)
     {
         $processos = Processo::find($request->id);
-        $campos = CampoProcesso::where('processo_id',$processos->id)->get();
+        $campos = CampoProcesso::where('processo_id',$processos->id)->orderBy('order', 'asc')->get();
         $processo = Processo::count();
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();

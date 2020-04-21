@@ -19,6 +19,7 @@ class CreateCampoProcessosTable extends Migration
             $table->string('key');
             $table->string('name');
             $table->string('value');
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

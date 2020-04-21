@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return Redirect()->route('login');
 });
 
 Auth::routes();
@@ -38,5 +38,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Robo',  'prefix' => 'robo'
 	Route::get('create/bot', ['as' => 'bot.create', 'uses' => 'RoboController@create']);
 	Route::get('getbotdatatables', ['as' => 'get.bots', 'uses' => 'RoboController@returnRoboDatatable']);
 	Route::post('create/bot', ['as' => 'create.bot.post', 'uses' => 'RoboController@store']);
+	Route::get('disabled/bot', ['as' => 'disabled.bot.post', 'uses' => 'RoboController@disabledBot']);
+	Route::get('enabled/bot', ['as' => 'enabled.bot.post', 'uses' => 'RoboController@activateBot']);
 });
 
