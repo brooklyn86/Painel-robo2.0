@@ -3,7 +3,7 @@
 ## Instalação
 
 -Requistos
-<b>PHP 7.3<b/>
+<b>PHP 7.3<b/></br>
 <b>Composer</b>
 
 ## Learning Laravel
