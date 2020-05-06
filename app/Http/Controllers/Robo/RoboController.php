@@ -74,7 +74,7 @@ class RoboController extends Controller
     {
         $robo_id = $request->id;
         $processo = Processo::count();
-        $totalMesAnterior = App\CreturnQuantidadeProcesso();    
+        $totalMesAnterior = $this->returnQuantidadeProcesso();    
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();

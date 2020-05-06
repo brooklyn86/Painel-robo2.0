@@ -29,7 +29,12 @@ class HomeController extends Controller
         $totalMesAnterior = $this->returnQuantidadeProcesso();    
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('dashboard',compact('processo','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
+        if($processo > 0 && $totalMesAnterior >0){
+            $mesPassado = number_format(($processo / $totalMesAnterior) * 100,2,'.','.');
+        }else{
+            $mesPassado = "0.00";
+        }
+        return view('dashboard',compact('processo','mesPassado','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
     }
 
     public function returnQuantidadeProcesso(){

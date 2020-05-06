@@ -9,6 +9,7 @@ use App\Processo;
 use App\CampoProcesso;
 use Yajra\DataTables\Facades\DataTables;
 use Requests as api;
+use Illuminate\Support\Facades\Storage;
 class ProcessoController extends Controller
 {
     /**
@@ -27,7 +28,12 @@ class ProcessoController extends Controller
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('processo.index',compact('processo','totalMesAnterior','robo','robo_id','robos','robosOff','robosOn','robosErro'));
+        if($processo > 0 && $totalMesAnterior >0){
+            $mesPassado = number_format(($processo / $totalMesAnterior) * 100,2,'.','.');
+        }else{
+            $mesPassado = "0.00";
+        }
+        return view('processo.index',compact('processo','mesPassado','totalMesAnterior','robo','robo_id','robos','robosOff','robosOn','robosErro'));
     }
 
     public function returnQuantidadeProcesso(){
@@ -35,6 +41,34 @@ class ProcessoController extends Controller
         $mesAtual = \Carbon\Carbon::now()->toDateString();
         $processos = Processo::whereBetween('created_at', [$mesAnterior, $mesAtual])->get()->count();
         return $processos;
+    }
+    public function upload(Request $request){
+            // Define o valor default para a variável que contém o nome da imagem 
+        $nameFile = null;
+
+        // Verifica se informou o arquivo e se é válido
+        if ($request->hasFile('file') && $request->file('file')->isValid()) {
+            
+            // Define um aleatório para o arquivo baseado no timestamps atual
+            // $name = uniqid(date('HisYmd'));
+    
+            // Recupera a extensão do arquivo
+            // $extension = $request->file->extension();
+            $nameFile = $request->file->getClientOriginalName();
+    
+            // // Define finalmente o nome
+            // $nameFile = "{$name}.{$extension}";
+    
+            // Faz o upload:
+            $upload = $request->file->storeAs('/public/pdfs/',$nameFile);
+            // Se tiver funcionado o arquivo foi armazenado em storage/app/public/categories/nomedinamicoarquivo.extensao
+    
+            // Verifica se NÃO deu certo o upload (Redireciona de volta)
+            if ( !$upload )
+                return Response()->json(['error' => true, 'message' => 'Falha ao fazer upload'],500);
+            return Response()->json(['error' => false, 'message' => 'Upload com sucesso']);
+    
+        }
     }
 
     public function submitProcessoDomain(Request $request, CampoProcesso $campoProcesso){
@@ -92,7 +126,7 @@ class ProcessoController extends Controller
     public function store(Request $request)
     {
         $parser = new \Smalot\PdfParser\Parser();
-        $file = base_path('/public/pdfs/'.$request->processo.'.pdf');
+        $file = base_path('storage/app/public/pdfs/'.$request->processo.'.pdf');
         $pdf = $parser->parseFile($file);
         $processo = new Processo;
         $nome = 0;
@@ -347,10 +381,16 @@ class ProcessoController extends Controller
         $campos = CampoProcesso::where('processo_id',$processos->id)->orderBy('order', 'asc')->get();
         $processo = Processo::count();
         $robos = Robo::count();
+        $totalMesAnterior = $this->returnQuantidadeProcesso();  
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('processo.view',compact('processo','processos','campos','robos','robosOff','robosOn','robosErro'));
+        if($processo > 0 && $totalMesAnterior >0){
+            $mesPassado = number_format(($processo / $totalMesAnterior) * 100,2,'.','.');
+        }else{
+            $mesPassado = "0.00";
+        }
+        return view('processo.view',compact('processo','mesPassado','processos','campos','robos','robosOff','robosOn','robosErro'));
     }
 
     /**
