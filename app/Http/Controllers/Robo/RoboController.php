@@ -31,7 +31,12 @@ class RoboController extends Controller
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        return view('bot.create',compact('processo','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
+                if($processo > 0 && $totalMesAnterior >0){
+            $mesPassado = number_format(($processo / $totalMesAnterior) * 100,2,'.','.');
+        }else{
+            $mesPassado = "0.00";
+        }
+        return view('bot.create',compact('processo','mesPassado','totalMesAnterior','robos','robosOff','robosOn','robosErro'));
     }
     public function returnQuantidadeProcesso(){
         $mesAnterior = \Carbon\Carbon::now()->subMonth()->toDateString();
