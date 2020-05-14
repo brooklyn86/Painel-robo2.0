@@ -16,6 +16,18 @@
                         </div>
                     </div>
                     <div class="table-responsive col-md-12">
+                    <div class="alert alert-default alert-dismissible fade show" role="alert">
+                        <span class="alert-icon"><i class="ni ni-like-2"></i></span>
+                        <span class="alert-text">
+                            <strong>Dica!</strong> 
+                            Você pode informar o numero do processo para efetuar uma pesquisa!
+                            </br>
+                            Você tambem pode ordenar a tabela de acordo com a coluna ex: Ordenar por numero de processo, basta clicar na coluna processo, mesma coisa nas outras colunas.
+                        </span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                         <!-- Projects table -->
                         <table id="processo" class="table align-items-center table-flush">
                             <thead class="thead-light">

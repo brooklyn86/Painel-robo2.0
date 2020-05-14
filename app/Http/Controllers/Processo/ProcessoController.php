@@ -96,7 +96,7 @@ class ProcessoController extends Controller
              
          })
          ->addColumn('actions', function($data){
-            $icon = '<button class="btn btn-info btn-sm" data-processo="'.$data->id.'" data-toggle="modal" data-target="#processoViewModal">
+            $icon = '<button class="btn btn-dark btn-sm" data-processo="'.$data->id.'" data-toggle="modal" data-target="#processoViewModal">
                 Ver Processo
             </button>';
              

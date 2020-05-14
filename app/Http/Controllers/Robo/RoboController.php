@@ -123,7 +123,7 @@ class RoboController extends Controller
          ->addColumn('actions', function($data){
  
   
-            $icon = '<a class="btn btn-info" href="/processos/view/robo/'.$data->id.'/processos">
+            $icon = '<a class="btn btn-dark btn-sm" href="/processos/view/robo/'.$data->id.'/processos">
                 Ver Processos
             </a>';
             
