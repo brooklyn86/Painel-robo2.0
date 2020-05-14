@@ -25,7 +25,7 @@
         var robo_id = <?php if(isset($robo_id)){ echo $robo_id;}else{ echo 'null';};?>
     </script>
 
-    <body class="{{ $class ?? '' }}">
+    <body class="{{ $class ?? 'bg-gradient-danger' }}">
         @auth()
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf

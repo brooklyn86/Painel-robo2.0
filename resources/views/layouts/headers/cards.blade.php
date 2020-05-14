@@ -12,8 +12,8 @@
                                     <span class="h2 font-weight-bold mb-0">{{$processo}}</span>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                        <i class="fas fa-chart-bar"></i>
+                                    <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                                        <i class="ni ni-archive-2"></i>
                                     </div>
                                 </div>
                             </div>
@@ -31,8 +31,8 @@
                                     <span class="h2 font-weight-bold mb-0">{{$robos}}</span>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
-                                        <i class="fas fa-chart-pie"></i>
+                                    <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                                        <i class="ni ni-atom"></i>
                                     </div>
                                 </div>
                             </div>
@@ -50,8 +50,8 @@
                                     <span class="h2 font-weight-bold mb-0">{{$robosOn}}</span>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                                        <i class="fas fa-users"></i>
+                                    <div class="icon icon-shape bg-green text-white rounded-circle shadow">
+                                        <i class="ni ni-sound-wave"></i>
                                     </div>
                                 </div>
                             </div>
@@ -70,8 +70,8 @@
                                     <span class="h2 font-weight-bold mb-0">{{$robosOff}}</span>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-                                        <i class="fas fa-percent"></i>
+                                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                                        <i class="ni ni-button-power"></i>
                                     </div>
                                 </div>
                             </div>

@@ -5,6 +5,17 @@
     
     <div class="container-fluid mt--7">
             <div class="col-xl-12">
+                    <div class="alert alert-default alert-dismissible fade show" role="alert">
+                        <span class="alert-icon"><i class="ni ni-like-2"></i></span>
+                        <span class="alert-text">
+                            <strong>Dica!</strong> 
+                            Para cadastrar um novo robo basta informar o nome e a descrição (Tipo)!
+                            
+                        </span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 <div class="card shadow">
                     <form method="post" action="{{route('create.bot.post')}}">
                     @csrf
