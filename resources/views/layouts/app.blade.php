@@ -24,6 +24,7 @@
     <script>
         var robo_id = <?php if(isset($robo_id)){ echo $robo_id;}else{ echo 'null';};?>
     </script>
+
     <body class="{{ $class ?? '' }}">
         @auth()
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -50,10 +51,35 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
-
-
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        @if(session('success'))
+   
+            <script>
+                swal("Completo!", "{{session('success')}}", "success");
+            </script>
+        @endif
+        @if(session('error'))
+   
+            <script>
+                swal("Falha!", "{{session('error')}}", "danger");
+            </script>
+        @endif
         <script>
+
          $(document).ready(function() {
+            
+            $("#processoViewModal").on('shown.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var id_processo = button.data("processo");
+                $("#body_processo").html('<img src="/argon/img/Infinity-1s-200px.gif" width="100%"></img>');
+
+                $.ajax({
+                    url: "http://localhost:8000/processos/"+id_processo+"/view", success: function(result){
+                    $("#body_processo").html(result);
+                }});
+            });
+
+
             var processo = $('#processo').DataTable({
             processing: true,
             serverSide: true,

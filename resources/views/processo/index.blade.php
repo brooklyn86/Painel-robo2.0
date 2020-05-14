@@ -34,9 +34,21 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade bd-example-modal-lg" id="processoViewModal" tabindex="-1" role="dialog" aria-labelledby="processoViewModal" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content bg-gradient-dark">
+                    
+                        <div class="modal-body" id="body_processo">
+                            
+                        <img src="/argon/img/Infinity-1s-200px.gif" width="80%"></img>
+                            
+                        </div>
+                    
+                        
+                    </div>
+                </div>
+            </div>
 
-         
-    </div>
 @endsection
 
 @push('js')

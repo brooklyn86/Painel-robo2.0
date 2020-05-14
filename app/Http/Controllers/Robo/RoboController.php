@@ -69,7 +69,7 @@ class RoboController extends Controller
         }
         $response =$robo->disabledBot($id);
         if($response){
-            return redirect()->back()->with('success', 'Robo ativado com sucesso');
+            return redirect()->back()->with('success', 'Robo desabilitado com sucesso');
         }
         return redirect()->back()->with('error', 'Falha na ativação do robo');
 

@@ -1,10 +1,4 @@
-@extends('layouts.app')
 
-@section('content')
-    @include('layouts.headers.cards')
-    
-    <div class="container-fluid mt--7">
-            <div class="col-xl-12">
             <form method="post" action="{{route('atualiza.processo')}}">
 
                 <div class="card shadow">
@@ -14,7 +8,7 @@
                                 <h3 class="mb-0">Dados do Processo <code>{{$processos->processo}}</code></h3>
                             </div>
                             <div class="col text-right">
-                                <a href="/processos/view/robo/{{$processos->robo_id}}/processos" class="btn btn-sm btn-danger">Cancelar</a>
+                                <a type="button" data-dismiss="modal" aria-label="Close" class="btn btn-sm btn-danger">Cancelar</a>
                                 <button type="submit" class="btn btn-sm btn-success">Atualizar</button>
                             </div>
                         </div>
@@ -171,13 +165,4 @@
                 <input type="hidden" value="{{$processos->id}}" name="processo_id">
             </form>
             </div>
-        </div>
 
-         
-    </div>
-@endsection
-
-@push('js')
-    <script src="{{ asset('argon') }}/vendor/chart.js/dist/Chart.min.js"></script>
-    <script src="{{ asset('argon') }}/vendor/chart.js/dist/Chart.extension.js"></script>
-@endpush
