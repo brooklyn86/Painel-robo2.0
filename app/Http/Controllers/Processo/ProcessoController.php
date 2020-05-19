@@ -107,6 +107,44 @@ class ProcessoController extends Controller
 
     }
 
+    public function extractPdfToBot(Request $request){
+        
+        $processFind = Processo::where('processo',$request->precatoria)->first();
+        if(!$processFind){
+            $processo = new Processo();
+            $processo->processo = $request->precatoria;
+            $processo->robo_id = 2;
+            $processo->save();
+            $i = 0;
+            $req = $request->all();
+            foreach($req as $key => $value){
+                if($key == "valor"){
+                    $value = number_format($value,2,',','.');
+                }else{
+                    $value = $value;
+                }
+                if(strlen($value) > 75){
+                    $type = 'textarea';
+                }else{
+                    $type = "text";
+                }
+                $key = preg_replace("/[_]+/", " ", $key);
+                $campo = new CampoProcesso;
+                $campo->processo_id = $processo->id;
+                $campo->key = $type;
+                $campo->name = ucwords($key);
+                $campo->value = $value;
+                $campo->order = $i;
+                $campo->save();
+
+                $i++;
+            }
+        }
+        
+        return Response()->json("sucesso");
+        
+    }
+
     /**
      * Show the form for creating a new resource.
      *
