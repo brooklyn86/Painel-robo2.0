@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Robo;
 use App\Processo;
 use App\CampoProcesso;
+use App\ProcessoSituacao;
+use App\AcordoProcesso;
+
 use Yajra\DataTables\Facades\DataTables;
 use Requests as api;
 use Illuminate\Support\Facades\Storage;
@@ -23,17 +26,12 @@ class ProcessoController extends Controller
         $robo_id = $request->id;
         $robo = Robo::find($robo_id);
         $processo = Processo::count();
-        $totalMesAnterior = $this->returnQuantidadeProcesso();
         $robos = Robo::count();
         $robosOn = Robo::where('status', 1)->count();
         $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
         $robosErro = Robo::where('status', 2)->count();
-        if($processo > 0 && $totalMesAnterior >0){
-            $mesPassado = number_format(($processo / $totalMesAnterior) * 100,2,'.','.');
-        }else{
-            $mesPassado = "0.00";
-        }
-        return view('processo.index',compact('processo','mesPassado','totalMesAnterior','robo','robo_id','robos','robosOff','robosOn','robosErro'));
+
+        return view('processo.index',compact('processo','robo','robo_id','robos','robosOff','robosOn','robosErro'));
     }
 
     public function returnQuantidadeProcesso(){
@@ -106,7 +104,107 @@ class ProcessoController extends Controller
           ->rawColumns(['actions'])->make();
 
     }
+    public function situacaoProcessual(){
+        if(auth()->user()->role_id == 1){
+            $processo = Processo::count();
+            $robos = Robo::count();
+            $robosOn = Robo::where('status', 1)->count();
+            $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
+            $robosErro = Robo::where('status', 2)->count();
+           return view('situacao.index',compact('processo','robos','robosOff','robosOn','robosErro'));
+        }else{
+           return redirect()->back();
+        }
+        
+    }
+    public function acordoProcessual(Request $request){
+        if(auth()->user()->role_id == 1){
+          $processo = ProcessoSituacao::find($request->id);
+          if($processo->status != 0){
+              $processo->status=0;
+              $processo->save();
+          }
+           $acordos = AcordoProcesso::where('processo_id',$request->id)->get();
+           return view('situacao.view',compact('acordos','processo'));
+        }else{
+           return redirect()->back();
+        }
+        
+    }
+    public function returnProcessSituacao(Request $request)
+    {
+        return Datatables::of(ProcessoSituacao::all())
+        ->addColumn('precatoriaStatus', function($data){
+            if($data->status == 1){
+             return $data->precatoria." <spam class='btn btn-sm btn-success'>Novo</spam>";
 
+            }
+            if($data->status == 2){
+                return $data->precatoria." <spam class='btn btn-sm btn-warning'>Atualizado</spam>";
+   
+            }
+            if($data->status == 3){
+                return $data->precatoria." <spam class='btn btn-sm btn-warning'>Atualizado</spam>";
+   
+            }
+            if($data->status == 0){
+                return $data->precatoria;
+            }
+              
+          })
+         ->addColumn('actions', function($data){
+            $icon = '<button class="btn btn-dark btn-sm" data-processo="'.$data->id.'" data-toggle="modal" data-target="#processoAcordoViewModal">
+                Ver Acordos
+            </button>';
+             
+             return $icon;
+              
+          })
+          ->rawColumns(['actions','precatoriaStatus'])->make();
+
+    }
+    public function situacaoProcesso(Request $request){
+        $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
+        if($verificaProcesso){
+            if($verificaProcesso->situacao != $request->situacao){
+                $verificaProcesso->situacao = $request->situacao;
+                $verificaProcesso->status = 2;
+                $verificaProcesso->save();
+            }
+            $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
+            if(!$acordoValida){
+            
+                $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
+                $verificaProcesso->status = 3;
+                $verificaProcesso->save();
+
+                $ordemProcesso = new AcordoProcesso;
+                $ordemProcesso->processo_id = $verificaProcesso->id;
+                $ordemProcesso->protocolo = $request->protocolo;
+                $ordemProcesso->texto = $request->texto;
+                $ordemProcesso->situacao = $request->situacao;
+                $ordemProcesso->save();
+                return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
+
+            }
+
+        }else{
+            $processo = new ProcessoSituacao;
+            $processo->precatoria = $request->precatoria;
+            $processo->situacao = $request->situacao;
+            $processo->save();
+
+            $ordemProcesso = new AcordoProcesso;
+            $ordemProcesso->processo_id = $processo->id;
+            $ordemProcesso->protocolo = $request->protocolo;
+            $ordemProcesso->texto = $request->texto;
+            $ordemProcesso->situacao = $request->situacao;
+            $ordemProcesso->save();
+
+            return Response()->Json(['processo' => $processo, 'ordem_processo', $ordemProcesso]);
+
+        }
+    }
     public function extractPdfToBot(Request $request){
         
         $processFind = Processo::where('processo',$request->precatoria)->first();

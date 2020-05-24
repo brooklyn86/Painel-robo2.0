@@ -2,7 +2,11 @@
 <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
     <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('home') }}">{{ __('Inicio') }}</a>
+        <a class="h4 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('home') }}">{{ __('Inicio') }}</a>
+        @if(auth()->user()->role_id == 1)
+            <a class="h4 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('process.situacao') }}">{{ __('Situação Processual') }}</a>
+        @endif
+
         <!-- Form -->
         <!-- User -->
         <ul class="navbar-nav align-items-center d-none d-md-flex">
@@ -22,6 +26,14 @@
                         <i class="ni ni-single-02"></i>
                         <span>{{ __('Perfil') }}</span>
                     </a>
+                    @if(auth()->user()->role_id == 1)
+
+                    <a href="/user" class="dropdown-item">
+                        <i class="ni ni-single-02"></i>
+                        <span>{{ __('Usuarios') }}</span>
+                    </a>
+                    @endif
+
                     <div class="dropdown-divider"></div>
                     <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault();
                     document.getElementById('logout-form').submit();">

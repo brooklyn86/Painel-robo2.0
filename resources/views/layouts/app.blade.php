@@ -74,12 +74,21 @@
                 $("#body_processo").html('<img src="/argon/img/Infinity-1s-200px.gif" width="100%"></img>');
 
                 $.ajax({
-                    url: "http://localhost:8000/processos/"+id_processo+"/view", success: function(result){
+                    url: "/processos/"+id_processo+"/view", success: function(result){
                     $("#body_processo").html(result);
                 }});
             });
 
+            $("#processoAcordoViewModal").on('shown.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var id_processo = button.data("processo");
+                $("#body_processoAcordo").html('<img src="/argon/img/Infinity-1s-200px.gif" width="100%"></img>');
 
+                $.ajax({
+                    url: "/processos/view/acordos/"+id_processo+"/processo", success: function(result){
+                    $("#body_processoAcordo").html(result);
+                }});
+            });
             var processo = $('#processo').DataTable({
                 language : {
                 "sEmptyTable": "Nenhum processo encontrado",
@@ -172,7 +181,73 @@
         } );
         </script>
         <script>
+        $(document).ready(function() {
+            var situacao = $('#situacao').DataTable({
+            language : {
+                "sEmptyTable": "Nenhum registro encontrado",
+                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "_MENU_ Resultados por página",
+                "sLoadingRecords": "Carregando...",
+                "sProcessing": "Processando...",
+                "sZeroRecords": "Nenhum registro encontrado",
+                "sSearch": "Pesquisar Precatoria",
+                "oPaginate": {
+                    "sNext": "»",
+                    "sPrevious": "«",
+                    "sFirst": "Primeiro",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Ordenar colunas de forma ascendente",
+                    "sSortDescending": ": Ordenar colunas de forma descendente"
+                },
+                "select": {
+                    "rows": {
+                        "_": "%d precatorias selecionadas",
+                        "0": "Nenhuma precatoria selecionada",
+                        "1": "1 precatoria selecionado "
+                    }
+                },
+                "buttons": {
+                    "copy": "Copiar para a área de transferência",
+                    "copyTitle": "Cópia bem sucedida",
+                    "copySuccess": {
+                        "1": "Uma linha copiada com sucesso",
+                        "_": "%d linhas copiadas com sucesso"
+                    }
+                }
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route('getprocess.situacao') }}',
+            columns: [
+                {
+                    data : 'id',
+                    name : 'id'
+                },
+                {
+                    data : 'precatoriaStatus',
+                    name : 'precatoriaStatus'
+                },
+                {
+                    data : 'situacao',
+                    name : 'situacao'
+                },
+                {
+                    data : 'actions',
+                    name : 'actions'
+                },
 
+            ]
+        });
+        setInterval( function () {
+            situacao.ajax.reload( null, false );
+        }, 30000  );
+        } );
         $(document).ready(function() {
             var robo = $('#robo').DataTable({
             language : {

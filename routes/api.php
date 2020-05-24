@@ -18,7 +18,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'processo'], function () {
     Route::post('/cadastrar/processo', 'ProcessoController@store');
     Route::post('/upload/pdf', 'ProcessoController@upload');
     Route::post('/generate/processo/server', 'ProcessoController@extractPdfToBot');
+    Route::post('/situacao/processo', 'ProcessoController@situacaoProcesso');
 
-
+    
     Route::post('/submit/processo/domain', 'ProcessoController@submitProcessoDomain')->name('submit.processo.api');
 });
