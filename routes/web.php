@@ -23,6 +23,12 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'UserController', ['except' => ['show']]);
+	Route::get('getUsuarios', ['as' => 'get.usuarios', 'uses' => 'UserController@returnUserPlataforma']);
+	Route::get('getUsuario/{id}', ['as' => 'get.usuarios_atualiza', 'uses' => 'UserController@getUser']);
+	Route::get('user/{id}/excluir', ['as' => 'get.delete_usuario', 'uses' => 'UserController@delete']);
+	Route::post('atualiza/usuario', ['as' => 'atualiza.usuario', 'uses' => 'UserController@update']);
+	Route::post('register/usuario', ['as' => 'register.usuario', 'uses' => 'UserController@register']);
+	
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);

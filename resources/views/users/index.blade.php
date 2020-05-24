@@ -32,17 +32,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                                                                <tr>
-                                    <td>Admin Admin</td>
-                                    <td>
-                                        <a href="mailto:admin@argon.com">admin@argon.com</a>
-                                    </td>
-                                    <td>Administrador</td>
-                                    <td class="text-right">
-                                        <button class="btn btn-sm btn-dark">Editar</button>
-                                    </td>
-                                </tr>
-                                                        </tbody>
+
+                         </tbody>
                     </table>
                 </div>
                 <div class="card-footer py-4">
@@ -59,6 +50,68 @@
 
                         <div class="modal-body" id="body_processoAcordo">
                             
+<form method="post" action="{{route('register.usuario')}}">
+
+<div class="card shadow">
+    <div class="card-header border-0">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0">Cadastrar Usuario </h3>
+            </div>
+            <div class="col text-right">
+                <a type="button" data-dismiss="modal" aria-label="Close" class="btn btn-sm btn-danger">Cancelar</a>
+                <button type="submit" class="btn btn-sm btn-success">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+    <div class="row">
+    @csrf
+    
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="form-control-label">Nome:</label>
+            <input type="text" class="form-control form-control-alternative" name="nome">
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="form-control-label">E-mail:</label>
+            <input type="email" class="form-control form-control-alternative" name="email">
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+            <label class="form-control-label">Senha:</label>
+            <input type="password" class="form-control form-control-alternative" name="senha">
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+            <label class="form-control-label">Confirmar Senha:</label>
+            <input type="password" class="form-control form-control-alternative" name="conf_senha">
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+            <label class="form-control-label">Permissão:</label>
+            <select name="permissao" class="form-control">
+  
+                <option value="0">Usuario</option>
+                <option value="1">Administrador</option>
+
+            </select>
+           
+        </div>
+      </div>
+</div>
+
+</form>
+</div>
+
+
                         
                             
                         </div>
@@ -66,7 +119,21 @@
                         
                     </div>
                 </div>
-            </div>
+    </div>
+    <div class="modal fade bd-example-modal-lg" id="editarUsuario" tabindex="-1" role="dialog" aria-labelledby="processoAcordoViewModal" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content bg-gradient-dark">
+
+                        <div class="modal-body" id="body_processoUsuario">
+                            
+                        
+                            
+                        </div>
+                    
+                        
+                    </div>
+                </div>
+    </div>
 @endsection
 
 @push('js')

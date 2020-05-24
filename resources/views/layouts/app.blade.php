@@ -89,6 +89,16 @@
                     $("#body_processoAcordo").html(result);
                 }});
             });
+            $("#editarUsuario").on('shown.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var id_processo = button.data("processo");
+                $("#body_processoUsuario").html('<img src="/argon/img/Infinity-1s-200px.gif" width="100%"></img>');
+
+                $.ajax({
+                    url: "/getUsuario/"+id_processo, success: function(result){
+                    $("#body_processoUsuario").html(result);
+                }});
+            });
             var processo = $('#processo').DataTable({
                 language : {
                 "sEmptyTable": "Nenhum processo encontrado",
@@ -246,6 +256,73 @@
         });
         setInterval( function () {
             situacao.ajax.reload( null, false );
+        }, 30000  );
+        } );
+        $(document).ready(function() {
+            var usuarios = $('#usuarios').DataTable({
+            language : {
+                "sEmptyTable": "Nenhum registro encontrado",
+                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "_MENU_ Resultados por página",
+                "sLoadingRecords": "Carregando...",
+                "sProcessing": "Processando...",
+                "sZeroRecords": "Nenhum registro encontrado",
+                "sSearch": "Pesquisar usuario",
+                "oPaginate": {
+                    "sNext": "»",
+                    "sPrevious": "«",
+                    "sFirst": "Primeiro",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Ordenar colunas de forma ascendente",
+                    "sSortDescending": ": Ordenar colunas de forma descendente"
+                },
+                "select": {
+                    "rows": {
+                        "_": "%d usuarios selecionados",
+                        "0": "Nenhum robô selecionado",
+                        "1": "1 usuario selecionado "
+                    }
+                },
+                "buttons": {
+                    "copy": "Copiar para a área de transferência",
+                    "copyTitle": "Cópia bem sucedida",
+                    "copySuccess": {
+                        "1": "Uma linha copiada com sucesso",
+                        "_": "%d linhas copiadas com sucesso"
+                    }
+                }
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route('get.usuarios') }}',
+            columns: [
+                {
+                    data : 'name',
+                    name : 'name'
+                },
+                {
+                    data : 'email',
+                    name : 'email'
+                },
+                {
+                    data : 'permissao',
+                    name : 'permissao'
+                },
+                {
+                    data : 'actions',
+                    name : 'actions'
+                },
+
+            ]
+        });
+        setInterval( function () {
+            usuarios.ajax.reload( null, false );
         }, 30000  );
         } );
         $(document).ready(function() {
