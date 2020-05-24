@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['prefix' => 'v1', 'namespace' => 'processo'], function () {
+Route::group(['prefix' => 'v1', 'namespace' => 'Processo'], function () {
     Route::post('/cadastrar/processo', 'ProcessoController@store');
     Route::post('/upload/pdf', 'ProcessoController@upload');
     Route::post('/generate/processo/server', 'ProcessoController@extractPdfToBot');
