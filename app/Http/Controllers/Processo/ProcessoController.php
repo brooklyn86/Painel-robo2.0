@@ -166,15 +166,16 @@ class ProcessoController extends Controller
     public function situacaoProcesso(Request $request){
         $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
         if($verificaProcesso){
-            $dataAcordo = explode('/',$request->dataSolicitacao);
-                if($dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0] > $verificaProcesso->data){
-                    if($verificaProcesso->situacao != $request->situacao){
-                        $verificaProcesso->situacao = $request->situacao;
-                        $verificaProcesso->status = 2;
-                        $verificaProcesso->save();
+            if($request->dataSolicitacao != ''){
+                $dataAcordo = explode('/',$request->dataSolicitacao);
+                    if($dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0] > $verificaProcesso->data){
+                        if($verificaProcesso->situacao != $request->situacao){
+                            $verificaProcesso->situacao = $request->situacao;
+                            $verificaProcesso->status = 2;
+                            $verificaProcesso->save();
+                        }
                     }
                 }
-
             $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
             if(!$acordoValida){
             
