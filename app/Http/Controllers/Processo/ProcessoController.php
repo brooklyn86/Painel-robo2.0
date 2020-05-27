@@ -176,21 +176,23 @@ class ProcessoController extends Controller
                         }
                     }
                 }
-            $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
-            if(!$acordoValida){
-            
-                $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
-                $verificaProcesso->status = 3;
-                $verificaProcesso->save();
+            if($request->protocolo != ""){
+                $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
+                if(!$acordoValida){
+                
+                    $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
+                    $verificaProcesso->status = 3;
+                    $verificaProcesso->save();
 
-                $ordemProcesso = new AcordoProcesso;
-                $ordemProcesso->processo_id = $verificaProcesso->id;
-                $ordemProcesso->protocolo = $request->protocolo;
-                $ordemProcesso->texto = $request->texto;
-                $ordemProcesso->situacao = $request->situacao;
-                $ordemProcesso->save();
-                return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
+                    $ordemProcesso = new AcordoProcesso;
+                    $ordemProcesso->processo_id = $verificaProcesso->id;
+                    $ordemProcesso->protocolo = $request->protocolo;
+                    $ordemProcesso->texto = $request->texto;
+                    $ordemProcesso->situacao = $request->situacao;
+                    $ordemProcesso->save();
+                    return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
 
+                }
             }
 
         }else{
