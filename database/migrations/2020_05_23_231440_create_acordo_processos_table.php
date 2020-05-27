@@ -19,6 +19,7 @@ class CreateAcordoProcessosTable extends Migration
             $table->string('protocolo');
             $table->text('texto');
             $table->string('situacao');
+            $table->date('data');
             $table->timestamps();
         });
     }

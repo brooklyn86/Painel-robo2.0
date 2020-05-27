@@ -166,11 +166,15 @@ class ProcessoController extends Controller
     public function situacaoProcesso(Request $request){
         $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
         if($verificaProcesso){
-            if($verificaProcesso->situacao != $request->situacao){
-                $verificaProcesso->situacao = $request->situacao;
-                $verificaProcesso->status = 2;
-                $verificaProcesso->save();
-            }
+            $dataAcordo = explode('/',$request->dataSolicitacao);
+                if($dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0] > $verificaProcesso->data){
+                    if($verificaProcesso->situacao != $request->situacao){
+                        $verificaProcesso->situacao = $request->situacao;
+                        $verificaProcesso->status = 2;
+                        $verificaProcesso->save();
+                    }
+                }
+
             $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
             if(!$acordoValida){
             
@@ -193,12 +197,13 @@ class ProcessoController extends Controller
             $processo->precatoria = $request->precatoria;
             $processo->situacao = $request->situacao;
             $processo->save();
-
+            $dataAcordo = explode('/',$request->dataSolicitacao);
             $ordemProcesso = new AcordoProcesso;
             $ordemProcesso->processo_id = $processo->id;
             $ordemProcesso->protocolo = $request->protocolo;
             $ordemProcesso->texto = $request->texto;
             $ordemProcesso->situacao = $request->situacao;
+            $ordemProcesso->data = $dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0];
             $ordemProcesso->save();
 
             return Response()->Json(['processo' => $processo, 'ordem_processo', $ordemProcesso]);
