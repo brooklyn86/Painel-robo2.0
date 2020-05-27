@@ -193,18 +193,25 @@ class ProcessoController extends Controller
             }
 
         }else{
+            $situacao = $request->situacao;
+            if($request->situacao == ""){
+                $situacao = "Aguardando Upload";
+            }
             $processo = new ProcessoSituacao;
             $processo->precatoria = $request->precatoria;
-            $processo->situacao = $request->situacao;
+            $processo->situacao = $situacao;
             $processo->save();
-            $dataAcordo = explode('/',$request->dataSolicitacao);
-            $ordemProcesso = new AcordoProcesso;
-            $ordemProcesso->processo_id = $processo->id;
-            $ordemProcesso->protocolo = $request->protocolo;
-            $ordemProcesso->texto = $request->texto;
-            $ordemProcesso->situacao = $request->situacao;
-            $ordemProcesso->data = $dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0];
-            $ordemProcesso->save();
+            $ordemProcesso = [];
+            if($request->protocolo != ""){
+                $dataAcordo = explode('/',$request->dataSolicitacao);
+                $ordemProcesso = new AcordoProcesso;
+                $ordemProcesso->processo_id = $processo->id;
+                $ordemProcesso->protocolo = $request->protocolo;
+                $ordemProcesso->texto = $request->texto;
+                $ordemProcesso->situacao = $request->situacao;
+                $ordemProcesso->data = $dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0];
+                $ordemProcesso->save();
+            }
 
             return Response()->Json(['processo' => $processo, 'ordem_processo', $ordemProcesso]);
 
