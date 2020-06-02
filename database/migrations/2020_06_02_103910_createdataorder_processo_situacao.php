@@ -13,7 +13,7 @@ class CreatedataorderProcessoSituacao extends Migration
      */
     public function up()
     {
-        Schema::table('processo_situacao', function (Blueprint $table) {
+        Schema::table('processo_situacaos', function (Blueprint $table) {
             $table->date('data') // Nome da coluna
             ->nullable() // Preenchimento não obrigatório
             ->after('status'); // Ordenado após a coluna "password"
