@@ -168,10 +168,12 @@ class ProcessoController extends Controller
         if($verificaProcesso){
             if($request->dataSolicitacao != ''){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
-                    if($dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0] > $verificaProcesso->data){
+                $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+                    if($data->toDate() > $verificaProcesso->data){
                         if($verificaProcesso->situacao != $request->situacao){
                             $verificaProcesso->situacao = $request->situacao;
                             $verificaProcesso->status = 2;
+                            $verificaProcesso->data = $data;
                             $verificaProcesso->save();
                         }
                     }
@@ -179,17 +181,25 @@ class ProcessoController extends Controller
             if($request->protocolo != ""){
                 $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
                 if(!$acordoValida){
-                
+                    $dataAcordo = explode('/',$request->dataSolicitacao);
+                    $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
                     $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
-                    $verificaProcesso->status = 3;
-                    $verificaProcesso->save();
+                    if($data->toDate() > $verificaProcesso->data){
+                        $verificaProcesso->status = 3;
+                        $verificaProcesso->data = $data;
+                        $verificaProcesso->save();
+                    }
+                    $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
 
-                    $ordemProcesso = new AcordoProcesso;
-                    $ordemProcesso->processo_id = $verificaProcesso->id;
-                    $ordemProcesso->protocolo = $request->protocolo;
-                    $ordemProcesso->texto = $request->texto;
-                    $ordemProcesso->situacao = $request->situacao;
-                    $ordemProcesso->save();
+                    if(!$verificaAcordo){
+                        $ordemProcesso = new AcordoProcesso;
+                        $ordemProcesso->processo_id = $verificaProcesso->id;
+                        $ordemProcesso->protocolo = $request->protocolo;
+                        $ordemProcesso->texto = $request->texto;
+                        $ordemProcesso->situacao = $request->situacao;
+                        $ordemProcesso->save();
+                    }
+
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
 
                 }
@@ -197,12 +207,20 @@ class ProcessoController extends Controller
 
         }else{
             $situacao = $request->situacao;
-            if($request->situacao == ""){
+            if($request->situacao != ""){
+                $situacao = $request->situacao;
+
+
+            }else{
                 $situacao = "Aguardando Upload";
+
             }
+            $dataAcordo = explode('/',$request->dataSolicitacao);
+            $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
             $processo = new ProcessoSituacao;
             $processo->precatoria = $request->precatoria;
             $processo->situacao = $situacao;
+            $processo->situacao = $data;
             $processo->save();
             $ordemProcesso = [];
             if($request->protocolo != ""){
