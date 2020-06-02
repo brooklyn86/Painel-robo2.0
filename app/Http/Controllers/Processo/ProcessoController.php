@@ -175,6 +175,12 @@ class ProcessoController extends Controller
                             $verificaProcesso->status = 2;
                             $verificaProcesso->data = $data;
                             $verificaProcesso->save();
+                            $dados =  [
+                                'processo' => $verificaProcesso,
+                                'messagem' => "Precatoria atualizada na plataforma:",
+                                'acordo' => []
+                            ];
+                            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                         }
                     }
                 }
@@ -188,6 +194,12 @@ class ProcessoController extends Controller
                         $verificaProcesso->status = 3;
                         $verificaProcesso->data = $data;
                         $verificaProcesso->save();
+                        $dados =  [
+                            'processo' => $verificaProcesso,
+                            'messagem' => "Precatoria atualizada na plataforma:",
+                            'acordo' => []
+                        ];
+                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
                     $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
 
@@ -198,6 +210,12 @@ class ProcessoController extends Controller
                         $ordemProcesso->texto = $request->texto;
                         $ordemProcesso->situacao = $request->situacao;
                         $ordemProcesso->save();
+                        $dados =  [
+                            'processo' => $verificaProcesso,
+                            'messagem' => "Novo Acordo na plataforma plataforma:",
+                            'acordo' => []
+                        ];
+                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
 
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
@@ -222,6 +240,12 @@ class ProcessoController extends Controller
             $processo->situacao = $situacao;
             $processo->situacao = $data;
             $processo->save();
+            $dados =  [
+                'processo' => $verificaProcesso,
+                'messagem' => "Nova Precatoria na plataforma:",
+                'acordo' => []
+            ];
+            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
             $ordemProcesso = [];
             if($request->protocolo != ""){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
@@ -232,6 +256,7 @@ class ProcessoController extends Controller
                 $ordemProcesso->situacao = $request->situacao;
                 $ordemProcesso->data = $dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0];
                 $ordemProcesso->save();
+
             }
 
             return Response()->Json(['processo' => $processo, 'ordem_processo', $ordemProcesso]);
