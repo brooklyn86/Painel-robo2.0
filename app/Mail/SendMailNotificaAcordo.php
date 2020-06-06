@@ -29,7 +29,13 @@ class SendMailNotificaAcordo extends Mailable
     public function build()
     {
         $this->subject('Notificação Situação Processual!');
-        $this->to('victorhugoraj@gmail.com');
+        $this->to(
+        [   'victorhugoraj@gmail.com',
+            'maria.fernanda@francoguimaraes.adv.br',
+            'luciana.santos@francoguimaraes.adv.br',
+            'tiago.oliveira@francoguimaraes.adv.br',
+            'contato@francoguimaraes.adv.br'
+        ]);
         return $this->markdown('email.notifica')->with([
             'dados' => $this->dados,
         ]);
