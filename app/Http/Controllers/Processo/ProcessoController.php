@@ -13,6 +13,7 @@ use App\AcordoProcesso;
 use Yajra\DataTables\Facades\DataTables;
 use Requests as api;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 class ProcessoController extends Controller
 {
     /**
@@ -185,7 +186,7 @@ class ProcessoController extends Controller
                                 'messagem' => "Precatoria atualizada na plataforma:",
                                 'acordo' => []
                             ];
-                            // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                         }
                     }
                 }
@@ -209,7 +210,7 @@ class ProcessoController extends Controller
                             'messagem' => "Precatoria atualizada na plataforma:",
                             'acordo' => []
                         ];
-                        // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
                     $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
 
@@ -225,7 +226,7 @@ class ProcessoController extends Controller
                             'messagem' => "Novo Acordo na plataforma plataforma:",
                             'acordo' => []
                         ];
-                        // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
 
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
@@ -262,7 +263,7 @@ class ProcessoController extends Controller
                 'messagem' => "Nova Precatoria na plataforma:",
                 'acordo' => []
             ];
-            // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
             $ordemProcesso = [];
             if($request->protocolo != ""){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
