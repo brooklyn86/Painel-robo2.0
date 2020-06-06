@@ -234,7 +234,11 @@ class ProcessoController extends Controller
 
             }
             $dataAcordo = explode('/',$request->dataSolicitacao);
-            $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+            $data = null;
+            if(isset($dataAcordo[2])){
+                $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+
+            }
             $processo = new ProcessoSituacao;
             $processo->precatoria = $request->precatoria;
             $processo->situacao = $situacao;
