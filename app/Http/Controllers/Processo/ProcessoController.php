@@ -9,7 +9,7 @@ use App\Processo;
 use App\CampoProcesso;
 use App\ProcessoSituacao;
 use App\AcordoProcesso;
-
+use Exception;
 use Yajra\DataTables\Facades\DataTables;
 use Requests as api;
 use Illuminate\Support\Facades\Storage;
@@ -186,7 +186,11 @@ class ProcessoController extends Controller
                                 'messagem' => "Precatoria atualizada na plataforma:",
                                 'acordo' => []
                             ];
-                            Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                            try{
+                                Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                            }catch(Exception $e){
+                                
+                            }
                         }
                     }
                 }
@@ -210,7 +214,11 @@ class ProcessoController extends Controller
                             'messagem' => "Precatoria atualizada na plataforma:",
                             'acordo' => []
                         ];
-                        Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                        try{
+                            Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                        }catch(Exception $e){
+                            
+                        }
                     }
                     $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
 
@@ -226,7 +234,11 @@ class ProcessoController extends Controller
                             'messagem' => "Novo Acordo na plataforma plataforma:",
                             'acordo' => []
                         ];
-                        Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                        try{
+                            Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+                        }catch(Exception $e){
+                            
+                        }
                     }
 
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
@@ -263,7 +275,11 @@ class ProcessoController extends Controller
                 'messagem' => "Nova Precatoria na plataforma:",
                 'acordo' => []
             ];
-            Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+            try{
+                Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
+            }catch(Exception $e){
+                
+            }
             $ordemProcesso = [];
             if($request->protocolo != ""){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
