@@ -164,14 +164,19 @@ class ProcessoController extends Controller
 
     }
     public function situacaoProcesso(Request $request){
+        $situacao = 'Aguardando Upload';
+        if($request->situacao != ''){
+            $situacao = $request->situacao;
+        }
+        
         $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
         if($verificaProcesso){
             if($request->dataSolicitacao != ''){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
                 $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
                     if($data->toDate() > $verificaProcesso->data){
-                        if($verificaProcesso->situacao != $request->situacao){
-                            $verificaProcesso->situacao = $request->situacao;
+                        if($verificaProcesso->situacao != $situacao){
+                            $verificaProcesso->situacao = $situacao;
                             $verificaProcesso->status = 2;
                             $verificaProcesso->data = $data;
                             $verificaProcesso->save();
@@ -180,7 +185,7 @@ class ProcessoController extends Controller
                                 'messagem' => "Precatoria atualizada na plataforma:",
                                 'acordo' => []
                             ];
-                            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                            // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                         }
                     }
                 }
@@ -190,20 +195,21 @@ class ProcessoController extends Controller
                     $dataAcordo = explode('/',$request->dataSolicitacao);
                     $data = null;
                     if(isset($dataAcordo[2])){
-                        $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+                        $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0)->toDate();
         
                     }
                     $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
-                    if($data->toDate() > $verificaProcesso->data){
+                    if($data > $verificaProcesso->data){
                         $verificaProcesso->status = 3;
                         $verificaProcesso->data = $data;
+                        $verificaProcesso->situacao = $situacao;
                         $verificaProcesso->save();
                         $dados =  [
                             'processo' => $verificaProcesso,
                             'messagem' => "Precatoria atualizada na plataforma:",
                             'acordo' => []
                         ];
-                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                        // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
                     $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
 
@@ -212,14 +218,14 @@ class ProcessoController extends Controller
                         $ordemProcesso->processo_id = $verificaProcesso->id;
                         $ordemProcesso->protocolo = $request->protocolo;
                         $ordemProcesso->texto = $request->texto;
-                        $ordemProcesso->situacao = $request->situacao;
+                        $ordemProcesso->situacao = $situacao;
                         $ordemProcesso->save();
                         $dados =  [
                             'processo' => $verificaProcesso,
                             'messagem' => "Novo Acordo na plataforma plataforma:",
                             'acordo' => []
                         ];
-                        Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+                        // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
                     }
 
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
@@ -229,6 +235,7 @@ class ProcessoController extends Controller
 
         }else{
             $situacao = $request->situacao;
+            
             if($request->situacao != ""){
                 $situacao = $request->situacao;
 
@@ -237,7 +244,9 @@ class ProcessoController extends Controller
                 $situacao = "Aguardando Upload";
 
             }
+            
             $dataAcordo = explode('/',$request->dataSolicitacao);
+
             $data = null;
             if(isset($dataAcordo[2])){
                 $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
@@ -246,14 +255,14 @@ class ProcessoController extends Controller
             $processo = new ProcessoSituacao;
             $processo->precatoria = $request->precatoria;
             $processo->situacao = $situacao;
-            $processo->situacao = $data;
+            $processo->data = $data;
             $processo->save();
             $dados =  [
                 'processo' => $verificaProcesso,
                 'messagem' => "Nova Precatoria na plataforma:",
                 'acordo' => []
             ];
-            Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
+            // Mail::send(new App\Mail\SendMailNotificaAcordo($dados));
             $ordemProcesso = [];
             if($request->protocolo != ""){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
@@ -262,7 +271,7 @@ class ProcessoController extends Controller
                 $ordemProcesso->protocolo = $request->protocolo;
                 $ordemProcesso->texto = $request->texto;
                 $ordemProcesso->situacao = $request->situacao;
-                $ordemProcesso->data = $dataAcordo[2].'-'.$dataAcordo[1].'-'.$dataAcordo[0];
+            
                 $ordemProcesso->save();
 
             }
