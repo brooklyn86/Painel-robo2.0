@@ -188,7 +188,11 @@ class ProcessoController extends Controller
                 $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
                 if(!$acordoValida){
                     $dataAcordo = explode('/',$request->dataSolicitacao);
-                    $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+                    $data = null;
+                    if(isset($dataAcordo[2])){
+                        $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
+        
+                    }
                     $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
                     if($data->toDate() > $verificaProcesso->data){
                         $verificaProcesso->status = 3;
