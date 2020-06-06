@@ -37,8 +37,8 @@ return [
         'smtp' => [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST', 'mail.fairconsultoria.com.br'),
-            'port' => env('MAIL_PORT', 465),
-            'encryption' =>'tls',
+            'port' => env('MAIL_PORT', 26),
+            'encryption' =>'',
             'username' => 'robos@fairconsultoria.com.br',
             'password' => 'chinebil()',
             'timeout' => null,
