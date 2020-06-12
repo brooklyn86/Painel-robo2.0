@@ -22,7 +22,8 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/sl-1.3.1/datatables.min.css"/>
     </head>
     <script>
-        var robo_id = <?php if(isset($robo_id)){ echo $robo_id;}else{ echo 'null';};?>
+        var robo_id = <?php if(isset($robo_id)){ echo $robo_id;}else{ echo 'null';};?>;
+        var login = <?php if(isset($login)){ echo $login;}else{ echo 'null';};?>;
     </script>
 
     <body class="{{ $class ?? 'bg-gradient-danger' }}">
@@ -233,7 +234,7 @@
             },
             processing: true,
             serverSide: true,
-            ajax: '{{ route('getprocess.situacao') }}',
+            ajax: '/processos/get/situacao/processual/'+login,
             columns: [
                 {
                     data : 'id',
@@ -242,10 +243,6 @@
                 {
                     data : 'precatoriaStatus',
                     name : 'precatoriaStatus'
-                },
-                {
-                    data : 'situacao',
-                    name : 'situacao'
                 },
                 {
                     data : 'actions',

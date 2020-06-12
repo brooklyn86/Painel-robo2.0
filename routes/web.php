@@ -36,8 +36,8 @@ Route::group(['middleware' => 'auth'], function () {
 Route::group(['middleware' => 'auth', 'namespace' => 'Processo', 'prefix' => 'processos'], function () {
 	Route::get('view/robo/{id}/processos', ['as' => 'process.view', 'uses' => 'ProcessoController@index']);
 	Route::get('{id}/view', ['as' => 'process.view.view', 'uses' => 'ProcessoController@show']);
-	Route::get('situacao/processual', ['as' => 'process.situacao', 'uses' => 'ProcessoController@situacaoProcessual']);
-	Route::get('get/situacao/processual', ['as' => 'getprocess.situacao', 'uses' => 'ProcessoController@returnProcessSituacao']);
+	Route::get('situacao/processual/{login}', ['as' => 'process.situacao', 'uses' => 'ProcessoController@situacaoProcessual']);
+	Route::get('get/situacao/processual/{login}', ['as' => 'getprocess.situacao', 'uses' => 'ProcessoController@returnProcessSituacao']);
 	Route::get('view/acordos/{id}/processo', ['as' => 'acordo.situacao', 'uses' => 'ProcessoController@acordoProcessual']);
 
 

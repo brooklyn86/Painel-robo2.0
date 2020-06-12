@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatedataorderProcessoSituacao extends Migration
+class CreateurlProcessoSituacao extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,9 @@ class CreatedataorderProcessoSituacao extends Migration
     public function up()
     {
         Schema::table('processo_situacaos', function (Blueprint $table) {
-            $table->date('data') // Nome da coluna
+            $table->text('url') // Nome da coluna
             ->nullable() // Preenchimento não obrigatório
-            ->after('status'); // Ordenado após a coluna "password"
+            ->after('id');
         });
     }
 
@@ -27,8 +27,9 @@ class CreatedataorderProcessoSituacao extends Migration
      */
     public function down()
     {
-        Schema::table('processo_situacao', function (Blueprint $table) {
-            $table->dropColumn('data');
+        Schema::table('processo_situacaos', function (Blueprint $table) {
+            $table->dropColumn('url');
+            
         });
     }
 }

@@ -2,7 +2,7 @@
 
 @section('content')
     @include('layouts.headers.cards')
-    
+
     <div class="container-fluid mt--7">
             <div class="col-xl-12">
                 <div class="card shadow">
@@ -27,15 +27,20 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
+
+                        
                     </div>
+                        <p>Escolha um login abaixo</p>
+                        @foreach($logins as $numero)
+                            <a href="/processos/situacao/processual/{{$numero->login}}" @if($numero->login == $login)  class="btn btn-success" @else class="btn btn-dark" @endif>{{$numero->login}}</a>
+                        @endforeach
                         <!-- Projects table -->
                         <table id="situacao" class="table align-items-center table-flush">
                             <thead class="thead-light">
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Processo</th>
-                                    <th scope="col">Situação</th>
-                                    <th scope="col">Ação</th>
+                                    <th scope="col">Acordos</th>
                                 </tr>
                             </thead>
                             <tbody>

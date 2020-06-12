@@ -4,7 +4,7 @@
         <!-- Brand -->
         <a class="h4 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('home') }}">{{ __('Inicio') }}</a>
         @if(auth()->user()->role_id == 1)
-            <a class="h4 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('process.situacao') }}">{{ __('Situação Processual') }}</a>
+            <a class="h4 text-white text-uppercase d-none d-lg-inline-block" href="{{ route('process.situacao', ['login'=> '11509412000178']) }}">{{ __('Situação Processual') }}</a>
         @endif
 
         <!-- Form -->

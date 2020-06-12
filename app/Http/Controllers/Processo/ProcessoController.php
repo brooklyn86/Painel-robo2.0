@@ -105,14 +105,17 @@ class ProcessoController extends Controller
           ->rawColumns(['actions'])->make();
 
     }
-    public function situacaoProcessual(){
+    public function situacaoProcessual(Request $request){
         if(auth()->user()->role_id == 1){
             $processo = Processo::count();
             $robos = Robo::count();
             $robosOn = Robo::where('status', 1)->count();
             $robosOff = Robo::where('status', 0)->orWhere('status', 2)->count();
             $robosErro = Robo::where('status', 2)->count();
-           return view('situacao.index',compact('processo','robos','robosOff','robosOn','robosErro'));
+            $logins = ProcessoSituacao::where('login',$request->login)->select('login')->distinct()->groupBy('login')->get();
+            
+            $login = $request->login;
+           return view('situacao.index',compact('processo','robos','robosOff','robosOn','robosErro','logins', 'login'));
         }else{
            return redirect()->back();
         }
@@ -134,7 +137,7 @@ class ProcessoController extends Controller
     }
     public function returnProcessSituacao(Request $request)
     {
-        return Datatables::of(ProcessoSituacao::all())
+        return Datatables::of(ProcessoSituacao::where('login',$request->login)->get())
         ->addColumn('precatoriaStatus', function($data){
             if($data->status == 1){
              return $data->precatoria." <spam class='btn btn-sm btn-success'>Novo</spam>";
@@ -165,6 +168,7 @@ class ProcessoController extends Controller
 
     }
     public function situacaoProcesso(Request $request){
+       
         $situacao = 'Aguardando Upload';
         if($request->situacao != ''){
             $situacao = $request->situacao;
@@ -179,6 +183,7 @@ class ProcessoController extends Controller
                         if($verificaProcesso->situacao != $situacao){
                             $verificaProcesso->situacao = $situacao;
                             $verificaProcesso->status = 2;
+                            $verificaProcesso->url = $request->url;
                             $verificaProcesso->data = $data;
                             $verificaProcesso->save();
                             $dados =  [
@@ -189,12 +194,14 @@ class ProcessoController extends Controller
                             try{
                                 Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
                             }catch(Exception $e){
+                                echo json_encode('enviado'. $e);
                                 
                             }
                         }
                     }
                 }
             if($request->protocolo != ""){
+                
                 $acordoValida = AcordoProcesso::where('protocolo',$request->protocolo)->first();
                 if(!$acordoValida){
                     $dataAcordo = explode('/',$request->dataSolicitacao);
@@ -208,6 +215,7 @@ class ProcessoController extends Controller
                         $verificaProcesso->status = 3;
                         $verificaProcesso->data = $data;
                         $verificaProcesso->situacao = $situacao;
+                        $verificaProcesso->url = $request->url;
                         $verificaProcesso->save();
                         $dados =  [
                             'processo' => $verificaProcesso,
@@ -217,6 +225,7 @@ class ProcessoController extends Controller
                         try{
                             Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
                         }catch(Exception $e){
+                            echo json_encode('enviado'.$e);
                             
                         }
                     }
@@ -237,16 +246,17 @@ class ProcessoController extends Controller
                         try{
                             Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
                         }catch(Exception $e){
-                            
+                            echo json_encode('enviado'.$e);
                         }
                     }
-
+                    
                     return Response()->Json(['processo' => $verificaProcesso, 'ordem_processo', $ordemProcesso]);
 
                 }
             }
 
         }else{
+           
             $situacao = $request->situacao;
             
             if($request->situacao != ""){
@@ -269,6 +279,8 @@ class ProcessoController extends Controller
             $processo->precatoria = $request->precatoria;
             $processo->situacao = $situacao;
             $processo->data = $data;
+            $processo->url = $request->url;
+            $processo->login = $request->login;
             $processo->save();
             $dados =  [
                 'processo' => $verificaProcesso,
@@ -278,6 +290,7 @@ class ProcessoController extends Controller
             try{
                 Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
             }catch(Exception $e){
+                echo json_encode('enviado'.$e);
                 
             }
             $ordemProcesso = [];
@@ -296,6 +309,8 @@ class ProcessoController extends Controller
             return Response()->Json(['processo' => $processo, 'ordem_processo', $ordemProcesso]);
 
         }
+        return Response()->Json(['processo' => [], 'ordem_processo',[]]);
+
     }
     public function extractPdfToBot(Request $request){
         

@@ -24,6 +24,11 @@
             
         </div>
     @endforeach
+
+    </div>
+    <div class="col-md-12">
+     <a href="{{$processo->url}}" target="__blank">Acesse o processo no site oficial clicando aqui</a>
+
     </div>
 </div>
 
