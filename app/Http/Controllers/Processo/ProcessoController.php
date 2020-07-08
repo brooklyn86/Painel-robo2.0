@@ -69,7 +69,17 @@ class ProcessoController extends Controller
     
         }
     }
-
+    public function getProcesso(Request $request){
+       return Datatables::of(Processo::where('robo_id',$request->robo_id))
+       ->addColumn('campos', function($data){
+          $robo = CampoProcesso::where('processo_id',$data->id)->get();
+           
+           return $robo->toArray();
+            
+        })
+       ->make();
+       return Response()->json($processo);
+    }
     public function submitProcessoDomain(Request $request, CampoProcesso $campoProcesso){
         $processos = $request->data;
         $processos = json_decode($processos);
@@ -318,31 +328,34 @@ class ProcessoController extends Controller
         if(!$processFind){
             $processo = new Processo();
             $processo->processo = $request->precatoria;
-            $processo->robo_id = 2;
+            $processo->robo_id = $request->robo_id;
             $processo->save();
             $i = 0;
             $req = $request->all();
             foreach($req as $key => $value){
-                if($key == "valor"){
-                    $value = number_format($value,2,',','.');
-                }else{
-                    $value = $value;
+                if($key != "robo_id"){
+                    if($key == "valor"){
+                        $value = number_format($value,2,',','.');
+                    }else{
+                        $value = $value;
+                    }
+                    if(strlen($value) > 75){
+                        $type = 'textarea';
+                    }else{
+                        $type = "text";
+                    }
+                    $key = preg_replace("/[_]+/", " ", $key);
+                    $campo = new CampoProcesso;
+                    $campo->processo_id = $processo->id;
+                    $campo->key = $type;
+                    $campo->name = ucwords($key);
+                    $campo->value = $value;
+                    $campo->order = $i;
+                    $campo->save();
+    
+                    $i++;
                 }
-                if(strlen($value) > 75){
-                    $type = 'textarea';
-                }else{
-                    $type = "text";
-                }
-                $key = preg_replace("/[_]+/", " ", $key);
-                $campo = new CampoProcesso;
-                $campo->processo_id = $processo->id;
-                $campo->key = $type;
-                $campo->name = ucwords($key);
-                $campo->value = $value;
-                $campo->order = $i;
-                $campo->save();
-
-                $i++;
+               
             }
         }
         
@@ -612,6 +625,258 @@ class ProcessoController extends Controller
         return Response()->json($processo);
     }
 
+    public function roboPJe(Request $request){
+
+    $url =  "https://esaj.tjsp.jus.br/pastadigital/getPDF.do?".base64_decode($request->url);
+    $processo = Processo::where('id',$request->id)->first();
+    
+    if(isset($processo)){
+        $filename =  $request->code.'.pdf';
+        $tempImage = base_path('public/storage/pdf/'.$filename);
+        $arquivo = \File::copy($url, $tempImage);
+        $size = filesize(base_path('public/storage/pdf/'.$filename));
+        if($size < 20000){
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf  = $parser->parseFile('http://localhost:8000/storage/pdf/'.$filename);
+            $processos = null;
+            $conteudo  = $pdf->getPages();
+
+            foreach ($conteudo as $key) {
+                $pagina = $key->getText();
+
+                $linha = explode("\n", $pagina);
+
+                foreach ($linha as $l) {
+                    $dado = explode(':', $l);
+                    if($dado[0] == "CPF"){
+                        $processos = Order::find($request->id);
+                        $cpf = preg_split('/\s+/',$dado[1]);
+                        $processos->cpf = $cpf[1];
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'CPF';
+                        $campo->value = (isset($cpf[1]) ? trim($cpf[1])  : "");
+                        $campo->order = 0;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Requerente "){
+                        $reqteRE = trim($dado[1]);
+                        $reqteRA = trim($reqteRE, "*");
+                        $reqte = trim($reqteRA);
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Requerente';
+                        $campo->value = (isset($reqte) ? trim($reqte)  : "");
+                        $campo->order = 1;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Entidade devedora"){
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Entidade devedora';
+                        $campo->value = (isset($dado[1]) ? trim($dado[1])  : "");
+                        $campo->order = 2;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Natureza"){
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Natureza';
+                        $campo->value = (isset($dado[1]) ? trim($dado[1])  : "");
+                        $campo->order = 3;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Data base"){
+                    
+                        $data = preg_split('/\s+/',$dado[1]);
+                        $novadata = explode('/', $data[1]);
+                        // $processos->data_base = ;
+                        // $taxa = HomeController::extractTaxa($data);
+                        // $processos->inicio_data_base_taxa = $taxa;
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Data base';
+                        $campo->value = trim(date('Y-m-d',strtotime($novadata[2]."-".$novadata[1]."-".$novadata[0])));
+                        $campo->order = 4;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Data de nascimento"){
+                        $processos = Order::find($request->id);
+                        $processos->data = $dado[1];
+                        $campo = new CampoProcesso;
+                        $campo->processo_id = $processo->id;
+                        $campo->key = 'text';
+                        $campo->name = 'Data de nascimento';
+                        $campo->value = (isset($dado[1]) ? trim($dado[1])  : "");
+                        $campo->order = 5;
+                        $campo->save();
+                    }
+                    if($dado[0] == "Requisitado"){
+                        if($dado[1] !=  "\tNão informado pelo peticionante\t"){
+                            $nvalor = preg_split('/\s+/',$dado[1]);
+                            $valor = explode('.', $nvalor[1]);
+                            if(count($valor) == 3){
+
+                                $centavos = explode(',',$valor[2]);
+
+                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+
+                            }
+                            elseif(isset($valor[1])){
+                                $centavos = explode(',',$valor[1]);
+                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                            }else{
+                                $centavos = explode(',',$dado[1]);
+                                $newvalor =$centavos[0].".".$centavos[1];
+                            }
+                            if($valor[0] == "0,00"){
+                                $newvalor = null;
+                            }
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Requisitado';
+                            $campo->value = (isset($newvalor) ? trim($newvalor)  : "");
+                            $campo->order = 6;
+                            $campo->save();
+                        }else{
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Requisitado';
+                            $campo->value = null;
+                            $campo->order = 6;
+                            $campo->save();
+                        }
+                    }
+                    if($dado[0] == "Principal bruto"){
+                        if($dado[1] != "\tNão informado pelo peticionante\t"){
+                            $nvalor = preg_split('/\s+/',$dado[1]);
+                            $valor = explode('.', $nvalor[1]);
+                            if(count($valor) == 3){
+
+                                $centavos = explode(',',$valor[2]);
+
+                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+
+                            }
+                            elseif(isset($valor[1])){
+                                $centavos = explode(',',$valor[1]);
+                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                            }else{
+                                $centavos = explode(',',$dado[1]);
+
+                                $newvalor =$centavos[0].".".$centavos[1];
+
+
+                            }
+                            if($valor[0] == "0,00"){
+                                $newvalor = null;
+                            }
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Principal bruto';
+                            $campo->value = (isset($newvalor) ? trim($newvalor)  : "");
+                            $campo->order = 7;
+                            $campo->save();
+                        }else{
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Principal bruto';
+                            $campo->value = null;
+                            $campo->order = 7;
+                            $campo->save();
+                        }
+                    }
+                    if($dado[0] == "Total da condenação"){
+                        if($dado[1] !=  "\tNão informado pelo peticionante\t"){
+                            $nvalor = preg_split('/\s+/',$dado[1]);
+                            $valor = explode('.', $nvalor[1]);
+                            if(count($valor) == 3){
+
+                                $centavos = explode(',',$valor[2]);
+
+                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+
+                            }
+                            elseif(isset($valor[1])){
+                                $centavos = explode(',',$valor[1]);
+
+                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                            }else{
+                                $centavos = explode(',',$dado[1]);
+                                $newvalor =$centavos[0].".".$centavos[1];
+                            }
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Total da condenação';
+                            $campo->value = (isset($newvalor) ? trim($newvalor)  : "");
+                            $campo->order = 8;
+                            $campo->save();
+                        }else{
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Total da condenação';
+                            $campo->value =  null;
+                            $campo->order = 8;
+                            $campo->save();
+                        }
+                    }
+                    if($dado[0] == "Juros moratórios"){
+                        if($dado[1] !=  "\tNão informado pelo peticionante\t"){
+                            $nvalor = preg_split('/\s+/',$dado[1]);
+                            $valor = explode('.', $nvalor[1]);
+                            if(count($valor) == 3){
+
+                                $centavos = explode(',',$valor[2]);
+
+                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+
+                            }
+                            elseif(isset($valor[1])){
+                                $centavos = explode(',',$valor[1]);
+                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                            }else{
+                                $centavos = explode(',',$dado[1]);
+                                $newvalor = $centavos[0].".".$centavos[1];
+                            }
+                            if($valor[0] == "0,00"){
+                                $newvalor = null;
+                            }
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Juros moratórios';
+                            $campo->value = (isset($newvalor) ? trim($newvalor)  : "");
+                            $campo->order = 9;
+                            $campo->save();
+                        }else{
+                            $campo = new CampoProcesso;
+                            $campo->processo_id = $processo->id;
+                            $campo->key = 'text';
+                            $campo->name = 'Juros moratórios';
+                            $campo->value = (isset($cpf[1]) ? trim($cpf[1])  : "");
+                            $campo->order = 9;
+                            $campo->save();
+                        }
+                    }
+                }
+            }
+            return Response()->json(['Sucesso' => true]);
+        }
+    }
+}
+    
+  
     /**
      * Display the specified resource.
      *

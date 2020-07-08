@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1', 'namespace' => 'Processo'], function () {
     Route::post('/cadastrar/processo', 'ProcessoController@store');
+    Route::get('/processo/{robo_id}', 'ProcessoController@getProcesso');
     Route::post('/upload/pdf', 'ProcessoController@upload');
     Route::post('/generate/processo/server', 'ProcessoController@extractPdfToBot');
+    Route::post('/create/precatoria', 'ProcessoController@roboPJe');
     Route::post('/situacao/processo', 'ProcessoController@situacaoProcesso');
-
-    
     Route::post('/submit/processo/domain', 'ProcessoController@submitProcessoDomain')->name('submit.processo.api');
 });
