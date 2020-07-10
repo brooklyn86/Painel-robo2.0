@@ -638,7 +638,7 @@ class ProcessoController extends Controller
        
         if($size < 40000){
             $parser = new \Smalot\PdfParser\Parser();
-            $pdf  = $parser->parseFile('http://localhost:8000/storage/pdf/'.$filename);
+            $pdf  = $parser->parseFile('https://robo.fairconsultoria.com.br/storage/pdf/'.$filename);
             $processos = null;
             $conteudo  = $pdf->getPages();
             dd($conteudo);
