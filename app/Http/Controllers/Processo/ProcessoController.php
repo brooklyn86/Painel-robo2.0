@@ -641,7 +641,6 @@ class ProcessoController extends Controller
             $pdf  = $parser->parseFile('https://robo.fairconsultoria.com.br/storage/pdf/'.$filename);
             $processos = null;
             $conteudo  = $pdf->getPages();
-            dd($conteudo);
             foreach ($conteudo as $key) {
                 $pagina = $key->getText();
 
