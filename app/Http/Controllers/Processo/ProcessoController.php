@@ -649,9 +649,7 @@ class ProcessoController extends Controller
                 foreach ($linha as $l) {
                     $dado = explode(':', $l);
                     if($dado[0] == "CPF"){
-                        $processos = Order::find($request->id);
                         $cpf = preg_split('/\s+/',$dado[1]);
-                        $processos->cpf = $cpf[1];
                         $campo = new CampoProcesso;
                         $campo->processo_id = $processo->id;
                         $campo->key = 'text';
@@ -706,8 +704,6 @@ class ProcessoController extends Controller
                         $campo->save();
                     }
                     if($dado[0] == "Data de nascimento"){
-                        $processos = Order::find($request->id);
-                        $processos->data = $dado[1];
                         $campo = new CampoProcesso;
                         $campo->processo_id = $processo->id;
                         $campo->key = 'text';
