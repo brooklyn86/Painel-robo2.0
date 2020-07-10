@@ -714,21 +714,24 @@ class ProcessoController extends Controller
                     }
                     if($dado[0] == "Requisitado"){
                         if($dado[1] !=  "\tNão informado pelo peticionante\t"){
-                            $nvalor = preg_split('/\s+/',$dado[1]);
-                            $valor = explode('.', $nvalor[1]);
-                            if(count($valor) == 3){
+                            if($dado[1] != ""){
+                                $nvalor = preg_split('/\s+/',$dado[1]);
+                                $valor = explode('.', $nvalor[1]);
+                                if(count($valor) == 3){
 
-                                $centavos = explode(',',$valor[2]);
+                                    $centavos = explode(',',$valor[2]);
 
-                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+                                    $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
 
-                            }
-                            elseif(isset($valor[1])){
-                                $centavos = explode(',',$valor[1]);
-                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
-                            }else{
-                                $centavos = explode(',',$dado[1]);
-                                $newvalor =$centavos[0].".".$centavos[1];
+                                }
+                                elseif(isset($valor[1])){
+                                    $centavos = explode(',',$valor[1]);
+                                    $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                                }else{
+                                    $centavos = explode(',',$dado[1]);
+                                    $newvalor =$centavos[0].".".$centavos[1];
+                                }
+
                             }
                             if($valor[0] == "0,00"){
                                 $newvalor = null;
@@ -752,23 +755,27 @@ class ProcessoController extends Controller
                     }
                     if($dado[0] == "Principal bruto"){
                         if($dado[1] != "\tNão informado pelo peticionante\t"){
-                            $nvalor = preg_split('/\s+/',$dado[1]);
-                            $valor = explode('.', $nvalor[1]);
-                            if(count($valor) == 3){
+                            
+                            if($dado[1] != ""){
+                                $nvalor = preg_split('/\s+/',$dado[1]);
+                                $valor = explode('.', $nvalor[1]);
+                                if(count($valor) == 3){
 
-                                $centavos = explode(',',$valor[2]);
+                                    $centavos = explode(',',$valor[2]);
 
-                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+                                    $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
 
-                            }
-                            elseif(isset($valor[1])){
-                                $centavos = explode(',',$valor[1]);
-                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
-                            }else{
-                                $centavos = explode(',',$dado[1]);
+                                }
+                                elseif(isset($valor[1])){
+                                    $centavos = explode(',',$valor[1]);
+                                    $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                                }else{
+                                    $centavos = explode(',',$dado[1]);
 
-                                $newvalor =$centavos[0].".".$centavos[1];
+                                    $newvalor =$centavos[0].".".$centavos[1];
 
+
+                                }
 
                             }
                             if($valor[0] == "0,00"){
@@ -829,21 +836,24 @@ class ProcessoController extends Controller
                     }
                     if($dado[0] == "Juros moratórios"){
                         if($dado[1] !=  "\tNão informado pelo peticionante\t"){
-                            $nvalor = preg_split('/\s+/',$dado[1]);
-                            $valor = explode('.', $nvalor[1]);
-                            if(count($valor) == 3){
+                            if($dado[1] != ""){
+                                $nvalor = preg_split('/\s+/',$dado[1]);
+                                $valor = explode('.', $nvalor[1]);
+                                if(count($valor) == 3){
 
-                                $centavos = explode(',',$valor[2]);
+                                    $centavos = explode(',',$valor[2]);
 
-                                $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
+                                    $newvalor =$valor[0].$valor[1].$centavos[0].".".$centavos[1];
 
-                            }
-                            elseif(isset($valor[1])){
-                                $centavos = explode(',',$valor[1]);
-                                $newvalor =$valor[0].$centavos[0].".".$centavos[1];
-                            }else{
-                                $centavos = explode(',',$dado[1]);
-                                $newvalor = $centavos[0].".".$centavos[1];
+                                }
+                                elseif(isset($valor[1])){
+                                    $centavos = explode(',',$valor[1]);
+                                    $newvalor =$valor[0].$centavos[0].".".$centavos[1];
+                                }else{
+                                    $centavos = explode(',',$dado[1]);
+                                    $newvalor = $centavos[0].".".$centavos[1];
+                                }
+
                             }
                             if($valor[0] == "0,00"){
                                 $newvalor = null;
