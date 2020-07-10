@@ -626,21 +626,22 @@ class ProcessoController extends Controller
     }
 
     public function roboPJe(Request $request){
-
+ 
     $url =  "https://esaj.tjsp.jus.br/pastadigital/getPDF.do?".base64_decode($request->url);
     $processo = Processo::where('id',$request->id)->first();
-    
+   
     if(isset($processo)){
         $filename =  $request->code.'.pdf';
         $tempImage = base_path('public/storage/pdf/'.$filename);
         $arquivo = \File::copy($url, $tempImage);
         $size = filesize(base_path('public/storage/pdf/'.$filename));
-        if($size < 20000){
+       
+        if($size < 40000){
             $parser = new \Smalot\PdfParser\Parser();
             $pdf  = $parser->parseFile('http://localhost:8000/storage/pdf/'.$filename);
             $processos = null;
             $conteudo  = $pdf->getPages();
-
+            dd($conteudo);
             foreach ($conteudo as $key) {
                 $pagina = $key->getText();
 
