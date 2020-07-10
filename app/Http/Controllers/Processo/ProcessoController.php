@@ -731,10 +731,9 @@ class ProcessoController extends Controller
                                     $centavos = explode(',',$dado[1]);
                                     $newvalor =$centavos[0].".".$centavos[1];
                                 }
-
-                            }
-                            if($valor[0] == "0,00"){
-                                $newvalor = null;
+                                if($valor[0] == "0,00"){
+                                    $newvalor = null;
+                                }
                             }
                             $campo = new CampoProcesso;
                             $campo->processo_id = $processo->id;
@@ -776,10 +775,9 @@ class ProcessoController extends Controller
 
 
                                 }
-
-                            }
-                            if($valor[0] == "0,00"){
-                                $newvalor = null;
+                                if($valor[0] == "0,00"){
+                                    $newvalor = null;
+                                }
                             }
                             $campo = new CampoProcesso;
                             $campo->processo_id = $processo->id;
@@ -853,10 +851,9 @@ class ProcessoController extends Controller
                                     $centavos = explode(',',$dado[1]);
                                     $newvalor = $centavos[0].".".$centavos[1];
                                 }
-
-                            }
-                            if($valor[0] == "0,00"){
-                                $newvalor = null;
+                                if($valor[0] == "0,00"){
+                                    $newvalor = null;
+                                }
                             }
                             $campo = new CampoProcesso;
                             $campo->processo_id = $processo->id;
