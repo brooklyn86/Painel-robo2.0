@@ -28,8 +28,22 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <input name='filter' class="form-control" placeholder="Filtro de valor" id="filter"></input>
+                            <td>
+                            <td>
+                                <button style="float:left" class="btn btn-info">Filtrar</button>
+                            </td>
+                            <td>
+                                <button id="limparFiltro" class="btn btn-warning">Limpar filtro</button>
+                            </td>
+                        <tr>
+                    </table>
                         <!-- Projects table -->
                         <table id="processo" class="table align-items-center table-flush">
+                            
                             <thead class="thead-light">
                                 <tr>
                                     <th scope="col">#</th>

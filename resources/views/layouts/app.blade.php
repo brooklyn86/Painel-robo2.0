@@ -42,6 +42,7 @@
 
         <script src="{{ asset('argon') }}/vendor/jquery/dist/jquery.min.js"></script>
         <script src="{{ asset('argon') }}/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/js/jquery.mask.js"></script>
         <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
@@ -65,8 +66,8 @@
                 swal("Falha!", "{{session('error')}}", "danger");
             </script>
         @endif
+        <input type="hidden" id="reloadTable"/>
         <script>
-
          $(document).ready(function() {
             
             $("#processoViewModal").on('shown.bs.modal', function (event) {
@@ -100,6 +101,7 @@
                     $("#body_processoUsuario").html(result);
                 }});
             });
+            $('#filter').mask("#.##0,00", {reverse: true});
             var processo = $('#processo').DataTable({
                 language : {
                 "sEmptyTable": "Nenhum processo encontrado",
@@ -147,24 +149,24 @@
                 style:    'multi',
                 selector: 'td:first-child'
             },
-            buttons: [
-            {
-                text: 'Enviar Todos',
-                className: 'btn btn-success',
-                action: function ( e, dt, items) {
-                    var process = [];
-                    var data = processo.rows({ selected: true }).data();
-                    data.each(function( index ) {
-                        process.push(index);
-                    });
-                    var pp = JSON.stringify(process);
-                    $.post("{{route('submit.processo.api')}}", {data: pp}, function(data, status){
+            // buttons: [
+            // {
+            //     text: 'Enviar Todos',
+            //     className: 'btn btn-success',
+            //     action: function ( e, dt, items) {
+            //         var process = [];
+            //         var data = processo.rows({ selected: true }).data();
+            //         data.each(function( index ) {
+            //             process.push(index);
+            //         });
+            //         var pp = JSON.stringify(process);
+            //         $.post("{{route('submit.processo.api')}}", {data: pp}, function(data, status){
                       
-                    });
+            //         });
                   
-                }
-            }
-        ],
+            //     }
+            // }
+        // ],
             ajax: '/processos/getprocessosDatatables/'+robo_id,
             columns: [
                 {
@@ -189,6 +191,25 @@
         setInterval( function () {
             processo.ajax.reload( null, false );
         }, 30000  );
+
+        $("#filter").on('blur',function(e){
+            var filter = $(e.currentTarget).val();
+            processo.ajax.url('/processos/getprocessosDatatables/'+robo_id+'?filter='+filter);
+            if(filter.length > 3){
+                processo.ajax.reload( null, false );
+            }else{
+                swal("Desculpe!", "Informe o valor maior que 3 digitos", "error");
+            }
+        });
+
+        $("#limparFiltro").on('click',function(e){
+            $('#filter').val('');
+            processo.ajax.url('/processos/getprocessosDatatables/'+robo_id);
+            processo.ajax.reload( null, false );
+        });
+        $('#reloadTable').on('click', function(){
+            processo.ajax.reload( null, false );
+        });
         } );
         </script>
         <script>

@@ -21,7 +21,11 @@ class ProcessoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
+    public function __construct()
+    {
+        $this->arrayValueFilter = [];
+        $this->requestFilter = null;
+    }
     public function index(Request $request)
     {
         $robo_id = $request->id;
@@ -96,24 +100,48 @@ class ProcessoController extends Controller
 
     }
     public function returnProcessDatatable(Request $request)
-    {
-        return Datatables::of(Processo::where('robo_id',$request->id))
-        ->addColumn('robo', function($data){
-           $robo = Robo::find($data->robo_id);
-            
-            return $robo->name;
-             
-         })
-         ->addColumn('actions', function($data){
-            $icon = '<button class="btn btn-dark btn-sm" data-processo="'.$data->id.'" data-toggle="modal" data-target="#processoViewModal">
-                Ver Processo
-            </button>';
-             
-             return $icon;
-              
-          })
-          ->rawColumns(['actions'])->make();
-
+    {   
+     
+        if(isset($request->filter) && $request->filter != ""){
+            $processo =  $this->filterProcesso($request->filter,$request->id);
+            return Datatables::of( $processo)
+            ->addColumn('robo', function($data){
+               $robo = Robo::find($data['robo_id']);
+                
+                return $robo->name;
+                 
+             })
+             ->addColumn('actions', function($data){
+                $icon = '<button class="btn btn-dark btn-sm" data-processo="'.$data['id'].'" data-toggle="modal" data-target="#processoViewModal">
+                    Ver Processo
+                </button>';
+                 
+                 return $icon;
+                  
+              })
+              ->rawColumns(['actions'])->make();
+    
+        }else{
+            $processo = Processo::where('robo_id',$request->id);
+            return Datatables::of( $processo)
+            ->addColumn('robo', function($data){
+               $robo = Robo::find($data->robo_id);
+                
+                return $robo->name;
+                 
+             })
+             ->addColumn('actions', function($data){
+                $icon = '<button class="btn btn-dark btn-sm" data-processo="'.$data->id.'" data-toggle="modal" data-target="#processoViewModal">
+                    Ver Processo
+                </button>';
+                 
+                 return $icon;
+                  
+              })
+              ->rawColumns(['actions'])->make();
+    
+        }
+       
     }
     public function situacaoProcessual(Request $request){
         if(auth()->user()->role_id == 1){
@@ -624,7 +652,40 @@ class ProcessoController extends Controller
 
         return Response()->json($processo);
     }
+    function tofloat($num) {
+        $dotPos = strrpos($num, '.');
+        $commaPos = strrpos($num, ',');
+        $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos :
+            ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
+      
+        if (!$sep) {
+            return floatval(preg_replace("/[^0-9]/", "", $num));
+        }
+    
+        return floatval(
+            preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
+            preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
+        );
+    }
 
+
+    public function filterProcesso($filter,$robo_id){
+        $this->requestFilter = $filter;
+        $processo = CampoProcesso::where('name', 'LIKE','%Valor Total do Requerente%')
+        ->join('processos as PROCESSO', 'campo_processos.processo_id', '=', 'PROCESSO.id')
+        ->where('PROCESSO.robo_id', $robo_id)
+            ->chunk(100, function($processos)
+            {
+                foreach ($processos as $processo)
+                {
+                    if($this->tofloat($processo->value) >= $this->tofloat($this->requestFilter)){
+                       
+                        array_push($this->arrayValueFilter,$processo->toArray());
+                    }
+                }
+            });
+        return $this->arrayValueFilter;
+    }
     public function roboPJe(Request $request){
  
     $url =  "https://esaj.tjsp.jus.br/pastadigital/getPDF.do?".base64_decode($request->url);
