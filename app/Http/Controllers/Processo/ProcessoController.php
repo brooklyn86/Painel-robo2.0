@@ -217,7 +217,7 @@ class ProcessoController extends Controller
             if($request->dataSolicitacao != ''){
                 $dataAcordo = explode('/',$request->dataSolicitacao);
                 $data = \Carbon\Carbon::create($dataAcordo[2],$dataAcordo[1],$dataAcordo[0],0,0,0);
-                    if($data->toDate() > $verificaProcesso->data){
+                    if($data->toDate() > $verificaProcesso->data && $verificaProcesso->situacao != $situacao){
                         if($verificaProcesso->situacao != $situacao){
                             $verificaProcesso->situacao = $situacao;
                             $verificaProcesso->status = 2;
@@ -249,7 +249,7 @@ class ProcessoController extends Controller
         
                     }
                     $verificaProcesso = ProcessoSituacao::where('precatoria', $request->precatoria)->first();
-                    if($data > $verificaProcesso->data){
+                    if($data > $verificaProcesso->data && $verificaProcesso->situacao != $situacao){
                         $verificaProcesso->status = 3;
                         $verificaProcesso->data = $data;
                         $verificaProcesso->situacao = $situacao;
@@ -264,7 +264,6 @@ class ProcessoController extends Controller
                             Mail::send(new \App\Mail\SendMailNotificaAcordo($dados));
                         }catch(Exception $e){
                             echo json_encode('enviado'.$e);
-                            
                         }
                     }
                     $verificaAcordo = AcordoProcesso::where('protocolo', $request->protocolo)->first();
