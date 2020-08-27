@@ -409,7 +409,7 @@ class ProcessoController extends Controller
     public function store(Request $request)
     {
         $parser = new \Smalot\PdfParser\Parser();
-        $file = base_path('storage/app/public/pdfs/'.$request->processo.'.pdf');
+        $file = base_path('/storage/app/public/pdf/'.$request->processo.'.pdf');
         $pdf = $parser->parseFile($file);
         $processo = new Processo;
         $nome = 0;
@@ -432,7 +432,6 @@ class ProcessoController extends Controller
         $processo->save();
         $totalLinhas = count($linhas);
         foreach($linhas as $linha){
-            
             if(preg_match('/Data de Nascimento/', $linha) ){
                 $explode = explode(' ', $linha);
                 $campo = new CampoProcesso;
@@ -459,6 +458,20 @@ class ProcessoController extends Controller
                     $processo->processo = (isset($numero[2]) ? trim($numero[2]) : trim($numero[1] ) );
                     
                 }
+            }
+            if(preg_match('/Data do Protocolo/', $linha) ){
+                $campo = new CampoProcesso;
+                $campo->processo_id = $processo->id;
+                $campo->key = 'data';
+                $campo->name = 'Data do Protocolo (Proc. Originário)';
+                $campo->order = 3;
+
+                $data = (isset($explode[1]) ? trim($explode[1])  : "");
+           
+                $data = explode('/',$data);
+                $data = \Carbon\Carbon::createFromDate($data[2].'-'.$data[1].'-'.$data[0])->toDateString();
+                $campo->value = $data;
+                $campo->save();
             }
             // if($explode[0] == "Nome da Vara"){
             //     array_push($processoAnterior, $explode[1]);
@@ -686,24 +699,22 @@ class ProcessoController extends Controller
         return $this->arrayValueFilter;
     }
     public function roboPJe(Request $request){
- 
-    $url =  "https://esaj.tjsp.jus.br/pastadigital/getPDF.do?".base64_decode($request->url);
-    $processo = Processo::where('id',$request->id)->first();
-   
+    
+    $url =  "https://esaj.tjsp.jus.br/pastadigital/getPDF.do?".base64_decode($request['url']);
+    $processo = Processo::find($request->id);
     if(isset($processo)){
         $filename =  $request->code.'.pdf';
-        $tempImage = base_path('public/storage/pdf/'.$filename);
-        $arquivo = \File::copy($url, $tempImage);
+        // $tempImage = base_path('public/storage/pdf/'.$filename);
+        // $arquivo = \File::copy($url, $tempImage);
         $size = filesize(base_path('public/storage/pdf/'.$filename));
        
         if($size < 40000){
             $parser = new \Smalot\PdfParser\Parser();
-            $pdf  = $parser->parseFile('https://robo.fairconsultoria.com.br/storage/pdf/'.$filename);
+            $pdf  = $parser->parseFile(base_path('public/storage/pdf/120001Z4X0001.pdf'));
             $processos = null;
             $conteudo  = $pdf->getPages();
             foreach ($conteudo as $key) {
                 $pagina = $key->getText();
-
                 $linha = explode("\n", $pagina);
 
                 foreach ($linha as $l) {

@@ -1,4 +1,5 @@
-
+<html>
+<body>
             <form method="post" action="{{route('atualiza.processo')}}">
 
                 <div class="card shadow">
@@ -10,11 +11,12 @@
                             <div class="col text-right">
                                 <a type="button" data-dismiss="modal" aria-label="Close" class="btn btn-sm btn-danger">Cancelar</a>
                                 <button type="submit" class="btn btn-sm btn-success">Atualizar</button>
+                                <button type="button" class="btn btn-sm btn-info" id="#copyFields" onclick="copyField()" >Copiar</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12">
-                    <div class="row">
+                    <div class="row" id="elementsForm">
                     @csrf
                     
                     @foreach($campos as $campo)
@@ -110,7 +112,7 @@
                       <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-control-label">{{$campo->name}}</label>
-                            <textarea class="form-control" id="{{$campo->name}}-{{$campo->id}}" name="{{$campo->name}}-{{$campo->id}}" placeholder="{{$campo->name}}">{{$campo->value}}</textarea>
+                            <textarea class="form-control" id="{{$campo->name}}-{{$campo->id}}" name="{{$campo->name}}-{{$campo->id}}" data-name="" placeholder="{{$campo->name}}">{{$campo->value}}</textarea>
                         </div>
                       </div>
                       @endif
@@ -163,6 +165,29 @@
                 </div>
 
                 <input type="hidden" value="{{$processos->id}}" name="processo_id">
+                <textarea hidden id="copy"></textarea>
             </form>
+
             </div>
+
+
+            </body>
+
+            <script>
+              function copyField(){
+
+                    let msg = '';
+                    $.each( $( ".form-control" ), function() {
+                     msg += this.placeholder+": "+this.value+" \n";
+                    });
+
+                    var $temp = $("<textarea>");
+                    $("body").append($temp);
+                    $temp.val(msg).select();
+                    document.execCommand("copy");
+                    $temp.remove();
+                    return true;
+            }
+            </script>
+</html>
 
