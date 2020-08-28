@@ -409,7 +409,7 @@ class ProcessoController extends Controller
     public function store(Request $request)
     {
         $parser = new \Smalot\PdfParser\Parser();
-        $file = base_path('/storage/app/public/pdf/'.$request->processo.'.pdf');
+        $file = base_path('/storage/app/public/pdfs/'.$request->processo.'.pdf');
         $pdf = $parser->parseFile($file);
         $processo = new Processo;
         $nome = 0;
